@@ -12,3 +12,6 @@ allow hal_sensors_default hal_audio_hwservice:hwservice_manager find;
 
 # Dontaudit Sensors to read default_prop
 dontaudit hal_sensors_default default_prop:file read;
+
+binder_use(hal_sensors_default)
+binder_call(hal_sensors_default, system_server)
