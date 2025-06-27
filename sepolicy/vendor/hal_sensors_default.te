@@ -1,3 +1,5 @@
+hal_client_domain(hal_sensors_default, hal_audio)
+
 allow hal_sensors_default sensors_device:chr_file rw_file_perms;
 allow hal_sensors_default vendor_fingerprint_sysfs:file rw_file_perms;
 
@@ -15,3 +17,4 @@ dontaudit hal_sensors_default default_prop:file read;
 
 binder_use(hal_sensors_default)
 binder_call(hal_sensors_default, system_server)
+binder_call(hal_sensors_default, hal_audio_default)
