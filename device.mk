@@ -16,6 +16,9 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-6144-dalvik-heap.mk)
 # Allow userspace reboots
 $(call inherit-product, $(SRC_TARGET_DIR)/product/userspace_reboot.mk)
 
+# Keys
+$(call inherit-product-if-exists, vendor/private/keys/keys.mk)
+
 # AB OTA Configuration
 AB_OTA_UPDATER := true
 AB_OTA_PARTITIONS := \
