@@ -35,6 +35,7 @@
 
 # Thermal
 /(vendor|system/vendor)/bin/mi_thermald                                                                u:object_r:vendor_mi_thermald_exec:s0
+/sys/devices/virtual/thermal/thermal_message/sconfig                                                   u:object_r:vendor_sysfs_thermalconfig:s0
 
 # Touchfeatures
 /dev/xiaomi-touch u:object_r:touchfeature_device:s0
