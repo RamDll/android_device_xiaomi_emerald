@@ -93,7 +93,7 @@ ro.vendor.mtk_widevine_drm_l3_support=1
 
 # Fingerprint
 persist.vendor.fingerprint.type=udfps_optical
-persist.vendor.fingerprint.sensor_location=540|2110|105
+persist.vendor.fingerprint.sensor_location=540|2164|105
 ro.vendor.sensors.xiaomi.udfps=true
 
 # FM

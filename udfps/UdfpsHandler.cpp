@@ -34,7 +34,6 @@
 
 #define SET_CUR_VALUE 0
 #define Touch_Fod_Enable 10
-#define TOUCH_ID 0
 #define TOUCH_MAGIC 't'
 #define TOUCH_IOC_SETMODE _IO(TOUCH_MAGIC, SET_CUR_VALUE)
 
@@ -203,12 +202,12 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
     void setFodStatus(int value) {
         set(FOD_STATUS_PATH, value);
         int arg[3] = {Touch_Fod_Enable, value};
-        ioctl(TOUCH_ID, touch_fd_, TOUCH_IOC_SETMODE, &arg);
+        ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
     }
 
     void setFingerDown(bool pressed) {
         // xiaomi-touch
-        int arg[3] = {TOUCH_ID, Touch_Fod_Enable, pressed ? 1 : 0};
+        int arg[3] = {Touch_Fod_Enable, pressed ? 1 : 0};
         ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
 
         // Request HBM
