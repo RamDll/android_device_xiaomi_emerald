@@ -24,7 +24,7 @@ vendor/lib64/vendor.mediatek.hardware.apuware.hmp@1.0.so
 vendor/lib64/vendor.mediatek.hardware.apuware.utils@2.0.so
 
 # Audio
-vendor/lib64/awinic.audio.effect.so
+vendor/lib64/awinic.audio.effect.so;FIX_SONAME
 vendor/lib64/hw/audio.primary.mediatek.so
 vendor/lib64/hw/audio.r_submix.mediatek.so
 vendor/lib64/libMtkSpeechEnh.so
@@ -740,6 +740,7 @@ vendor/lib64/libmialgo_sd.so
 vendor/lib64/libmialgo_utils.so
 vendor/lib64/libmialgoengine.so
 vendor/lib64/libmialgoengine2.so
+vendor/lib64/libminiui.so
 vendor/lib64/libmorpho_HDSR.so
 vendor/lib64/libmorpho_HdrChecker.so
 vendor/lib64/libmorpho_ImageRefiner.so
@@ -1931,8 +1932,9 @@ vendor/lib64/vendor.mediatek.hardware.videotelephony@1.0.so;MODULE_SUFFIX=_vendo
 
 # Sensors
 vendor/etc/elliptic_sensor.xml
-vendor/lib64/hw/sensors.elliptic.so
+vendor/lib64/hw/sensors.elliptic.so;FIX_SONAME
 vendor/lib64/hw/sensors.mediatek.V2.0.so:vendor/lib64/hw/sensors.mt6789.so;FIX_SONAME
+vendor/lib64/libnotifyaudiohal.so;FIX_SONAME
 vendor/lib64/libhfmanager.so
 vendor/lib64/libhfmanagerwrapper.so
 vendor/lib64/libksensor.so
