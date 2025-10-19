@@ -1788,8 +1788,6 @@ vendor/lib64/vendor.mediatek.hardware.neuropilot.agent@1.2.so
 vendor/etc/init/init.gold.nfc.rc
 vendor/etc/libnfc-nci.conf
 vendor/etc/libnfc-nxp.conf
-vendor/lib64/ese_client.so
-vendor/lib64/ese_spi_nxp.so
 vendor/lib64/libnxp_extamp_intf.so
 vendor/lib64/libpn557_fw.so
 vendor/libnfc-nxp_RF.conf
