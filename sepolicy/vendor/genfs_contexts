@@ -29,6 +29,7 @@ genfscon sysfs /devices/platform/soc/11017000.i2c/i2c-5/5-006a/power_supply/xm_c
 genfscon sysfs /sys/devices/platform/soc/11017000.i2c/i2c-5/5-006a/power_supply/charger u:object_r:sysfs_power_supply:s0
 genfscon sysfs /devices/platform/soc/1101a000.i2c/i2c-6/6-006a/power_supply/sc-cp-master u:object_r:sysfs_power_supply:s0
 genfscon sysfs /devices/platform/soc/11f00000.i2c/i2c-7/7-006d/power_supply/sc-cp-slave u:object_r:sysfs_power_supply:s0
+genfscon sysfs /devices/platform/soc/1101a000.i2c/i2c-6/6-006d/power_supply/sc-cp-master u:object_r:sysfs_power_supply:s0
 
 # Fingerprint
 genfscon sysfs /devices/virtual/touch/touch_dev/fod_press_status u:object_r:vendor_fingerprint_sysfs:s0
