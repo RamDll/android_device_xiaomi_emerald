@@ -37,7 +37,6 @@ ro.config.vc_call_vol_steps=11
 
 # Bluetooth
 bluetooth.device_id.vendor_id=0x0046
-bluetooth.device.default_name=Redmi Note 14
 persist.bluetooth.a2dp_offload.cap=sbc-aac
 persist.bluetooth.a2dp_offload.disabled=true
 ro.bluetooth.a2dp_offload.supported=true
