@@ -1951,6 +1951,9 @@ vendor/lib64/libnotifyaudiohal.so;FIX_SONAME
 vendor/bin/hw/vendor.xiaomi.sensor.citsensorservice@2.0-service
 vendor/etc/init/vendor.xiaomi.sensor.citsensorservice@2.0-service.rc
 vendor/etc/sensors/lightSensorCali.json
+vendor/etc/sensors/lightSensorConfig.json
+vendor/etc/sensors/lightSensorConfigSecPannelAndSecSensor.json
+vendor/etc/sensors/lightSensorConfigSecPannel.json
 vendor/etc/sensors/lightSensorConfigSecSensor.json
 vendor/etc/vintf/manifest/vendor.xiaomi.sensor.citsensorservice@2.0-service.xml
 vendor/lib64/hw/vendor.xiaomi.sensor.citsensorservice@2.0-impl.so
