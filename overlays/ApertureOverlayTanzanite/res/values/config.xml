@@ -5,7 +5,7 @@
 -->
 <resources>
     <!-- Enable auxiliary cameras selector. -->
-    <bool name="config_enableAuxCameras">true</bool>
+    <bool name="config_enableAuxCameras">false</bool>
 
     <!-- An array of triplets made of (camera ID, qualities, framerates).
          These video modes will be added to the available
