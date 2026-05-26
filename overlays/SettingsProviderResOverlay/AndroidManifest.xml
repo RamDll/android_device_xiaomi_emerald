@@ -5,7 +5,7 @@
     SPDX-License-Identifier: Apache-2.0
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.providers.settingsres.overlay.tanzanite">
+    package="com.android.providers.settingsres.overlay.emerald">
     <application android:hasCode="false" />
     <overlay android:targetPackage="com.android.providers.settings" android:isStatic="true" android:priority="1" />
 </manifest>

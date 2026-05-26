@@ -1,4 +1,4 @@
-# Android device tree for Xiaomi Redmi Note 14 4G (tanzanite)
+# Android device tree for Xiaomi Redmi Note 13 Pro 4G/POCO M6 Pro (emerald)
 
 ```
 #

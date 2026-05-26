@@ -5,7 +5,7 @@
 //
 
 runtime_resource_overlay {
-    name: "SettingsResOverlayTanzanite",
+    name: "SettingsResOverlayEmerald",
     vendor: true,
     resource_dirs: ["res"]
 }

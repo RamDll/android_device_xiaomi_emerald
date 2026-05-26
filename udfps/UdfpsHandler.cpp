@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#define LOG_TAG "UdfpsHandler.tanzanite"
+#define LOG_TAG "UdfpsHandler.emerald"
 
 #include <aidl/android/hardware/biometrics/fingerprint/BnFingerprint.h>
 #include <android-base/logging.h>
@@ -34,6 +34,7 @@
 
 #define SET_CUR_VALUE 0
 #define Touch_Fod_Enable 10
+#define TOUCH_ID 0
 #define TOUCH_MAGIC 't'
 #define TOUCH_IOC_SETMODE _IO(TOUCH_MAGIC, SET_CUR_VALUE)
 
@@ -90,7 +91,7 @@ static disp_event_resp* parseDispEvent(int fd) {
 
 }  // anonymous namespace
 
-class XiaomiTanzaniteUdfpsHandler : public UdfpsHandler {
+class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
   public:
     void init(fingerprint_device_t* device) {
         mDevice = device;
@@ -202,12 +203,12 @@ class XiaomiTanzaniteUdfpsHandler : public UdfpsHandler {
     void setFodStatus(int value) {
         set(FOD_STATUS_PATH, value);
         int arg[3] = {Touch_Fod_Enable, value};
-        ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
+        ioctl(TOUCH_ID, touch_fd_, TOUCH_IOC_SETMODE, &arg);
     }
 
     void setFingerDown(bool pressed) {
         // xiaomi-touch
-        int arg[3] = {Touch_Fod_Enable, pressed ? 1 : 0};
+        int arg[3] = {TOUCH_ID, Touch_Fod_Enable, pressed ? 1 : 0};
         ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
 
         // Request HBM
@@ -225,7 +226,7 @@ class XiaomiTanzaniteUdfpsHandler : public UdfpsHandler {
 };
 
 static UdfpsHandler* create() {
-    return new XiaomiTanzaniteUdfpsHandler();
+    return new XiaomiEmeraldUdfpsHandler();
 }
 
 static void destroy(UdfpsHandler* handler) {

@@ -5,7 +5,7 @@
 //
 
 runtime_resource_overlay {
-    name: "FrameworksResOverlayTanzanite",
+    name: "FrameworksResOverlayEmerald",
     vendor: true,
     resource_dirs: ["res"]
 }

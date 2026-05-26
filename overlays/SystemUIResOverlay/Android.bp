@@ -5,7 +5,7 @@
 //
 
 runtime_resource_overlay {
-    name: "SystemUIOverlayTanzanite",
+    name: "SystemUIOverlayEmerald",
     vendor: true,
     resource_dirs: ["res"]
 }

@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-DEVICE_PATH := device/xiaomi/tanzanite
-KERNEL_PATH := device/xiaomi/tanzanite-kernel
+DEVICE_PATH := device/xiaomi/emerald
+KERNEL_PATH := device/xiaomi/emerald-kernel
 
 # Architecture
 TARGET_ARCH := arm64
@@ -29,10 +29,10 @@ TARGET_2ND_CPU_VARIANT := cortex-a55
 TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a55
 
 # OTA Updates
-TARGET_OTA_ASSERT_DEVICE := tanzanite
+TARGET_OTA_ASSERT_DEVICE := emerald
 
 # Bootloader
-TARGET_BOOTLOADER_BOARD_NAME := tanzanite
+TARGET_BOOTLOADER_BOARD_NAME := emerald
 TARGET_BOARD_FASTBOOT_INFO_FILE := $(DEVICE_PATH)/fastboot-info.txt
 TARGET_NO_BOOTLOADER := true
 
@@ -73,7 +73,7 @@ BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 TARGET_NO_KERNEL_OVERRIDE := true
 
 # Workaround to make lineage's soong generator work
-TARGET_KERNEL_SOURCE := device/xiaomi/tanzanite-kernel/kernel-headers
+TARGET_KERNEL_SOURCE := device/xiaomi/emerald-kernel/kernel-headers
 
 LOCAL_KERNEL := $(KERNEL_PATH)/Image.gz
 PRODUCT_COPY_FILES += \
@@ -104,11 +104,11 @@ BOARD_DTBOIMG_PARTITION_SIZE := 8388608
 BOARD_BOOTIMAGE_PARTITION_SIZE := 67108864
 BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 67108864
 
-BOARD_SUPER_PARTITION_SIZE := 8053063680
+BOARD_SUPER_PARTITION_SIZE := 7515144192
 BOARD_SUPER_PARTITION_GROUPS := mtk_dynamic_partitions
 
 BOARD_MTK_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext vendor product vendor_dlkm
-BOARD_MTK_DYNAMIC_PARTITIONS_SIZE := 8048869376
+BOARD_MTK_DYNAMIC_PARTITIONS_SIZE := 7415144192
 
 BOARD_EROFS_PCLUSTER_SIZE := 262144
 
@@ -207,4 +207,4 @@ WIFI_HAL_INTERFACE_COMBINATIONS += ,{{{STA}, 1}, {{NAN}, 1}}
 WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY := true
 
 # Inherit the proprietary files
-include vendor/xiaomi/tanzanite/BoardConfigVendor.mk
+include vendor/xiaomi/emerald/BoardConfigVendor.mk
