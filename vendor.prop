@@ -335,3 +335,6 @@ zygote.critical_window.minute=10
 # Display: default color mode "Saturated" (panel native gamut, no SF color matrix).
 # "Boosted" applies a saturation matrix the MTK HWC can't do -> GPU composition of every frame.
 persist.sys.sf.native_mode=1
+
+# Health: the bq27z561 gauge driver reports charge_counter in mAh, Android expects uAh.
+ro.vendor.health.charge_counter_in_mah=true
