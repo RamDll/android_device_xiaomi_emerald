@@ -1,0 +1,2 @@
+# Zram without flash writeback (12 GB RAM: writeback only wears the UFS)
+/dev/block/zram0	none	swap	defaults	zramsize=50%
