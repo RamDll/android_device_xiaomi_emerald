@@ -16,16 +16,18 @@ $(call inherit-product, device/xiaomi/emerald/device.mk)
 
 PRODUCT_DEVICE := emerald
 PRODUCT_NAME := lineage_emerald
-PRODUCT_BRAND := Redmi
-PRODUCT_MODEL := 23117RA68G
+# Present as the POCO M6 Pro (2312FPCA6G) — the variant this build is used on.
+PRODUCT_BRAND := POCO
+PRODUCT_MODEL := 2312FPCA6G
 PRODUCT_MANUFACTURER := xiaomi
 
-PRODUCT_SYSTEM_NAME := emerald_eea
+PRODUCT_SYSTEM_NAME := emerald_p_id
 PRODUCT_SYSTEM_DEVICE := emerald
 
 PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
 
+# Fingerprint of the stock POCO build this tree's blobs come from (OS2.0.208.0.VNFIDXM).
 PRODUCT_BUILD_PROP_OVERRIDES += \
-    BuildFingerprint=Redmi/emerald_eea/emerald:15/AP3A.240905.015.A2/OS2.0.211.0.VNFEUXM:user/release-keys \
+    BuildFingerprint=POCO/emerald_p_id/emerald:15/AP3A.240905.015.A2/OS2.0.208.0.VNFIDXM:user/release-keys \
     DeviceName=$(PRODUCT_SYSTEM_DEVICE) \
     DeviceProduct=$(PRODUCT_SYSTEM_NAME)

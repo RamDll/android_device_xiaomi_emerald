@@ -19,6 +19,8 @@
 <resources>
     <!-- 1 minute for default screen timeout -->
     <integer name="def_screen_off_timeout">60000</integer>
+    <!-- Default device name (About phone, Bluetooth, hotspot) instead of the model number. -->
+    <string name="def_device_name_simple" translatable="false">POCO M6 Pro</string>
 
     <!-- Enable screen locking sounds by default -->
     <integer name="def_lockscreen_sounds_enabled">1</integer>
