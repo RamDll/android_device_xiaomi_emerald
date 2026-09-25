@@ -2,4 +2,4 @@
 debug.hwui.skia_tracing_enabled=false
 debug.hwui.skia_use_perfetto_track_events=false
 
-ro.product.marketname=Redmi Note 14
+ro.product.marketname=POCO M6 Pro
