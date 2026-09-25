@@ -114,6 +114,14 @@ internal class DolbyController private constructor(
 
         // Finally restore the current profile.
         setCurrentProfile()
+
+        // Upstream stopped enabling Dolby at boot, but the UI keeps showing the persisted state:
+        // the switch said "on" while nothing re-applied the profile to new audio sessions (the
+        // playback/device callbacks are only registered when dsOn is set). Restore the persisted
+        // state so the effect, the current profile and the callbacks match what the user sees.
+        if (prefs.getBoolean(DolbyConstants.PREF_ENABLE, false)) {
+            dsOn = true
+        }
     }
 
     private fun restoreSettings(profile: Int) {
