@@ -4,11 +4,11 @@
 
     <com.android.settingslib.widget.MainSwitchPreference
         android:key="charging_control"
-        android:title="Use Charging Limit"
+        android:title="@string/cc_use_charging_limit"
         android:defaultValue="false" />
 
     <PreferenceCategory
-        android:title="Settings"
+        android:title="@string/cc_settings"
         app:allowDividerAbove="true">
 
         <com.android.settingslib.widget.SliderPreference

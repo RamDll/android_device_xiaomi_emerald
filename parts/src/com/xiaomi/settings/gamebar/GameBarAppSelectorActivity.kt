@@ -24,7 +24,7 @@ class GameBarAppSelectorActivity : CollapsingToolbarBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game_bar_app_selector)
-        title = "Select Apps for GameBar"
+        title = getString(R.string.gb_select_apps_title)
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()

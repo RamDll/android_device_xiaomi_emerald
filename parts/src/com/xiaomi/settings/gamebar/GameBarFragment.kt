@@ -163,17 +163,17 @@ class GameBarFragment : SettingsBasePreferenceFragment() {
         }
         mCaptureStartPref?.setOnPreferenceClickListener {
             GameDataExport.getInstance().startCapture()
-            Toast.makeText(context, "Started logging Data", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.gb_toast_logging_started, Toast.LENGTH_SHORT).show()
             true
         }
         mCaptureStopPref?.setOnPreferenceClickListener {
             GameDataExport.getInstance().stopCapture()
-            Toast.makeText(context, "Stopped logging Data", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.gb_toast_logging_stopped, Toast.LENGTH_SHORT).show()
             true
         }
         mCaptureExportPref?.setOnPreferenceClickListener {
             GameDataExport.getInstance().exportDataToCsv()
-            Toast.makeText(context, "Exported log data to file", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.gb_toast_log_exported, Toast.LENGTH_SHORT).show()
             true
         }
         mDoubleTapCapturePref?.setOnPreferenceChangeListener { _, newValue ->
