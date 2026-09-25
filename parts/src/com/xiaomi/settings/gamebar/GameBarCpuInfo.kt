@@ -27,8 +27,13 @@ object GameBarCpuInfo {
     private var sPrevIdle: Long = -1
     private var sPrevTotal: Long = -1
 
-    private val CPU_TEMP_PATHS = Array(16) { i ->
-        "/sys/class/thermal/thermal_zone" + (10 + i) + "/temp"
+    // Average the per-core CPU zones (cpu_little*/cpu_big* on mt6789); other zones such as
+    // gpu, modem, PMIC or the unused camera sensors (-274 C) would skew the result.
+    private val CPU_TEMP_PATHS: List<String> by lazy {
+        (File("/sys/class/thermal").listFiles() ?: emptyArray())
+            .filter { it.name.startsWith("thermal_zone") }
+            .filter { readLine(it.path + "/type")?.trim()?.startsWith("cpu_") == true }
+            .map { it.path + "/temp" }
     }
 
     val cpuUsage: String
