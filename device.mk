@@ -392,3 +392,7 @@ PRODUCT_COPY_FILES += \
 
 # Inherit the proprietary files
 $(call inherit-product, vendor/xiaomi/emerald/emerald-vendor.mk)
+
+# GApps (MindTheGapps, synced to vendor/gapps by the local manifest). The user-build recovery
+# can't install the flashable zip, so ship them in the image.
+$(call inherit-product-if-exists, vendor/gapps/arm64/arm64-vendor.mk)
