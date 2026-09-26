@@ -98,8 +98,15 @@ blob_fixups: blob_fixups_user_type = {
     .add_needed("android.hardware.sensors@1.0-convert-shared.so"),
     "vendor/bin/hw/android.hardware.media.c2@1.2-mediatek-64b": blob_fixup()
     .patchelf_version(patchelf_version)
-    .replace_needed("libavservices_minijail_vendor.so", "libavservices_minijail.so")
-    .add_needed("libstagefright_foundation-v33.so"),
+    .replace_needed("libavservices_minijail_vendor.so", "libavservices_minijail.so"),
+    (
+        "vendor/lib64/libcodec2_mtk_c2store.so",
+        "vendor/lib64/libcodec2_mtk_vdec.so",
+        "vendor/lib64/libcodec2_mtk_venc.so",
+        "vendor/lib64/libcodec2_vpp_qt_plugin.so",
+        "vendor/lib64/libcodec2_vpp_rs_plugin.so",
+    ): blob_fixup()
+    .replace_needed("libstagefright_foundation.so", "libstagefright_foundation-v33.so"),
     "vendor/etc/init/android.hardware.media.c2@1.2-mediatek.rc": blob_fixup().regex_replace(
         "@1.2-mediatek", "@1.2-mediatek-64b"
     ),
