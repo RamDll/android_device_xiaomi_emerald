@@ -344,3 +344,6 @@ ro.vendor.health.charge_counter_in_mah=true
 
 # Dex2oat
 pm.dexopt.bg-dexopt=everything
+
+# Visual performance: MTK perf-service frame pacing (from halcyonlv; experiment, compare traces)
+vendor.perf.framepacing.enable=1
