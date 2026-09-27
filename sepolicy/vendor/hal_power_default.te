@@ -18,3 +18,7 @@ allow hal_power_default touchfeature_device:chr_file rw_file_perms;
 set_prop(hal_power_default, vendor_power_prop)
 
 dontaudit hal_power_default self:capability dac_override;
+
+# Double tap to wake: gesture mode is toggled through the touch input device
+allow hal_power_default input_device:dir r_dir_perms;
+allow hal_power_default input_device:chr_file rw_file_perms;

@@ -13,6 +13,8 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <fstream>
+#include <atomic>
+#include <chrono>
 #include <thread>
 
 #include "UdfpsHandler.h"
@@ -167,11 +169,7 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
         if (result != FINGERPRINT_ACQUIRED_VENDOR) {
             if (static_cast<AcquiredInfo>(result) == AcquiredInfo::GOOD) {
                 // Request to disable HBM already, even if the finger is still pressed
-                disp_local_hbm_req req;
-                req.base.flag = 0;
-                req.base.disp_id = MI_DISP_PRIMARY;
-                req.local_hbm_value = LHBM_TARGET_BRIGHTNESS_OFF_FINGER_UP;
-                ioctl(disp_fd_.get(), MI_DISP_IOCTL_SET_LOCAL_HBM, &req);
+                setLocalHbm(false);
                 setFodStatus(FOD_STATUS_OFF);
             }
         } else if (vendorCode == 21 || vendorCode == 23) {
@@ -188,13 +186,51 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
         }
     }
 
+    void onAuthenticationSucceeded() {
+        LOG(DEBUG) << __func__;
+        setLocalHbm(false);
+    }
+
+    void onAuthenticationFailed() {
+        LOG(DEBUG) << __func__;
+        setLocalHbm(false);
+    }
+
     void cancel() {
         LOG(DEBUG) << __func__;
+        setLocalHbm(false);
         setFodStatus(FOD_STATUS_OFF);
     }
 
   private:
+    // The finger-up can get lost, e.g. on the last enrollment step the HAL reports the enrollment
+    // done without ACQUIRED_GOOD and SystemUI's pointer-up then arrives with no client. Never
+    // leave the 1000-nit white circle on for longer than this.
+    static constexpr auto kLocalHbmTimeout = std::chrono::seconds(3);
+
     fingerprint_device_t* mDevice;
+    std::atomic<uint32_t> lhbmGeneration_{0};
+
+    void setLocalHbm(bool on) {
+        uint32_t generation = ++lhbmGeneration_;
+
+        disp_local_hbm_req req;
+        req.base.flag = 0;
+        req.base.disp_id = MI_DISP_PRIMARY;
+        req.local_hbm_value =
+                on ? LHBM_TARGET_BRIGHTNESS_WHITE_1000NIT : LHBM_TARGET_BRIGHTNESS_OFF_FINGER_UP;
+        ioctl(disp_fd_.get(), MI_DISP_IOCTL_SET_LOCAL_HBM, &req);
+
+        if (on) {
+            std::thread([this, generation]() {
+                std::this_thread::sleep_for(kLocalHbmTimeout);
+                if (lhbmGeneration_ == generation) {
+                    LOG(WARNING) << "No finger up after local HBM, switching it off";
+                    setLocalHbm(false);
+                }
+            }).detach();
+        }
+    }
     android::base::unique_fd disp_fd_;
     android::base::unique_fd touch_fd_;
     uint32_t lastPressX, lastPressY;
@@ -211,12 +247,7 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
         ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
 
         // Request HBM
-        disp_local_hbm_req req;
-        req.base.flag = 0;
-        req.base.disp_id = MI_DISP_PRIMARY;
-        req.local_hbm_value = pressed ? LHBM_TARGET_BRIGHTNESS_WHITE_1000NIT
-                                      : LHBM_TARGET_BRIGHTNESS_OFF_FINGER_UP;
-        ioctl(disp_fd_.get(), MI_DISP_IOCTL_SET_LOCAL_HBM, &req);
+        setLocalHbm(pressed);
 
         // Notify HAL of both press and release events
         mDevice->extCmd(mDevice, COMMAND_FOD_PRESS_STATUS,
