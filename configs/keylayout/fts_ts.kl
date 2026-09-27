@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: The LineageOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+# FTS touchscreen (fts_ts). The touch driver reports the double-tap-to-wake gesture as
+# KEY_POWER, which Generic.kl maps to POWER: a slow release opens the power menu and two
+# gestures in a row trigger the power double-press (camera). Only wake the device instead.
+
+key 116   WAKEUP
+key 143   WAKEUP

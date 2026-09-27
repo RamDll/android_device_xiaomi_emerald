@@ -205,8 +205,8 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
   private:
     // The finger-up can get lost, e.g. on the last enrollment step the HAL reports the enrollment
     // done without ACQUIRED_GOOD and SystemUI's pointer-up then arrives with no client. Never
-    // leave the 1000-nit white circle on for longer than this.
-    static constexpr auto kLocalHbmTimeout = std::chrono::seconds(3);
+    // leave the 1000-nit white circle on for longer than this; a capture takes ~0.1-0.3 s.
+    static constexpr auto kLocalHbmTimeout = std::chrono::milliseconds(1500);
 
     fingerprint_device_t* mDevice;
     std::atomic<uint32_t> lhbmGeneration_{0};
