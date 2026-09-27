@@ -526,8 +526,10 @@
     <bool name="config_supportDoubleTapWake">true</bool>
     
     <!-- Type of the udfps long press sensor. Empty if long press is not supported.
-         Not set: emerald's touch driver has no fod_longpress_gesture_enabled node, so the
-         sensor can never be enabled (sensors.xiaomi logs a write failure on every doze). -->
+         Required for screen-off UDFPS: the sensor polls fod_press_status and is how SystemUI
+         learns about a finger on the sensor while the screen is off. Its enable write to
+         fod_longpress_gesture_enabled fails (no such node on emerald) - harmless. -->
+    <string name="config_dozeUdfpsLongPressSensorType" translatable="false">org.lineageos.sensor.udfps</string>
 
     <!-- Flag indicating whether the surface flinger has limited
          alpha compositing functionality in hardware.  If set, the window
