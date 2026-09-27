@@ -15,6 +15,8 @@ genfscon sysfs /devices/platform/soc/soc:hq_chg_manager/power_supply/usb/real_ty
 genfscon sysfs /devices/platform/soc/11f00000.i2c/i2c-7/7-0055/power_supply/bms u:object_r:sysfs_power_supply:s0
 genfscon sysfs /devices/platform/soc/11f00000.i2c/i2c-7/7-0055/verify_digest u:object_r:sysfs_power_supply:s0
 genfscon sysfs /devices/platform/soc/11f00000.i2c/i2c-7/7-0065/power_supply u:object_r:sysfs_power_supply:s0
+genfscon sysfs /devices/platform/soc/1101a000.i2c/i2c-6/6-006a/power_supply u:object_r:sysfs_power_supply:s0
+genfscon sysfs /devices/platform/soc/11f00000.i2c/i2c-7/7-006a/power_supply u:object_r:sysfs_power_supply:s0
 genfscon sysfs /devices/platform/soc/soc:xm_pd_adapter/Charging_Adapter/pd_adapter/pdo2 u:object_r:sysfs_power_supply:s0
 genfscon sysfs /devices/platform/soc/soc:xm_pd_adapter/Charging_Adapter/pd_adapter/adapter_id u:object_r:sysfs_power_supply:s0
 genfscon sysfs /devices/platform/soc/soc:xm_pd_adapter/Charging_Adapter/pd_adapter/adapter_svid u:object_r:sysfs_power_supply:s0
