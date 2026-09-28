@@ -346,6 +346,9 @@ persist.sys.sf.native_mode=1
 
 # Health: the bq27z561 gauge driver reports charge_counter in mAh, Android expects uAh.
 ro.vendor.health.charge_counter_in_mah=true
+# hq_chg reports a constant 12.4 A / 11 V current_max/voltage_max for the usb supply, so a PC
+# port showed "Charging rapidly"; report standard USB ports as 500 mA / 5 V.
+ro.vendor.health.usb_max_is_static=true
 
 # Dex2oat
 pm.dexopt.bg-dexopt=everything
