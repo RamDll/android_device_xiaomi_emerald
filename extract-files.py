@@ -101,14 +101,7 @@ blob_fixups: blob_fixups_user_type = {
     .replace_needed("libavservices_minijail_vendor.so", "libavservices_minijail.so")
     .add_needed("libstagefright_foundation-v33.so"),
     "vendor/etc/init/android.hardware.media.c2@1.2-mediatek.rc": blob_fixup()
-    .regex_replace("@1.2-mediatek", "@1.2-mediatek-64b")
-    # GWP-ASan on every allocation of the Codec2 HAL, to catch the use-after-free-like
-    # RefBase crashes (mRefs == nullptr) it sometimes hits at boot.
-    .regex_replace(
-        r"(task_profiles [^\n]*)",
-        r"\1\n    setenv GWP_ASAN_SAMPLE_RATE 1\n    setenv GWP_ASAN_PROCESS_SAMPLING 1"
-        r"\n    setenv GWP_ASAN_MAX_ALLOCS 40000",
-    ),
+    .regex_replace("@1.2-mediatek", "@1.2-mediatek-64b"),
     # MemoryDevice(bool secure) picks its backend once per process from the first non-secure
     # instance (DMA here, there is no /dev/ion). If the secure AVC encoder is the first one
     # created, e.g. right after the HAL restarted mid codec-list enumeration, the type is still
