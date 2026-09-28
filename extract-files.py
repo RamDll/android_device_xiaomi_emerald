@@ -100,8 +100,23 @@ blob_fixups: blob_fixups_user_type = {
     .patchelf_version(patchelf_version)
     .replace_needed("libavservices_minijail_vendor.so", "libavservices_minijail.so")
     .add_needed("libstagefright_foundation-v33.so"),
-    "vendor/etc/init/android.hardware.media.c2@1.2-mediatek.rc": blob_fixup().regex_replace(
-        "@1.2-mediatek", "@1.2-mediatek-64b"
+    "vendor/etc/init/android.hardware.media.c2@1.2-mediatek.rc": blob_fixup()
+    .regex_replace("@1.2-mediatek", "@1.2-mediatek-64b")
+    # GWP-ASan on every allocation of the Codec2 HAL, to catch the use-after-free-like
+    # RefBase crashes (mRefs == nullptr) it sometimes hits at boot.
+    .regex_replace(
+        r"(task_profiles [^\n]*)",
+        r"\1\n    setenv GWP_ASAN_SAMPLE_RATE 1\n    setenv GWP_ASAN_PROCESS_SAMPLING 1"
+        r"\n    setenv GWP_ASAN_MAX_ALLOCS 40000",
+    ),
+    # MemoryDevice(bool secure) picks its backend once per process from the first non-secure
+    # instance (DMA here, there is no /dev/ion). If the secure AVC encoder is the first one
+    # created, e.g. right after the HAL restarted mid codec-list enumeration, the type is still
+    # unknown and it abort()s, so the HAL crash-loops. Fall through into the DMA path instead
+    # (b.ne -> nop at 0x9e224), which is what the secure encoder uses on every good boot.
+    "vendor/lib64/libcodec2_mtk_venc.so": blob_fixup().binary_regex_replace(
+        b"\xa8\x02\x40\xb9\x1f\x05\x00\x71\x40\x05\x00\x54\x1f\x0d\x00\x71\xc1\x03\x00\x54",
+        b"\xa8\x02\x40\xb9\x1f\x05\x00\x71\x40\x05\x00\x54\x1f\x0d\x00\x71\x1f\x20\x03\xd5",
     ),
     "vendor/etc/init/android.hardware.bluetooth@1.1-service-mediatek.rc": blob_fixup().regex_replace(
         "on property:vts(.|\n)*", ""
