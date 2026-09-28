@@ -14,6 +14,7 @@
 #include <sys/ioctl.h>
 #include <fstream>
 #include <atomic>
+#include <cstdint>
 #include <chrono>
 #include <thread>
 
@@ -146,6 +147,44 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
                                 localHbmUiReady ? PARAM_NIT_FOD : PARAM_NIT_NONE);
             }
         }).detach();
+
+        // Thread to listen for the finger leaving the sensor, as seen by the touch driver. The
+        // framework drops the pointer-up when no client is running (after a successful unlock or
+        // on the last enrollment step), so this is the only reliable finger-up.
+        std::thread([this]() {
+            int fd = open(FOD_STATUS_PATH, O_RDONLY);
+            if (fd < 0) {
+                LOG(ERROR) << "failed to open " << FOD_STATUS_PATH << " , err: " << fd;
+                return;
+            }
+
+            struct pollfd fodPressPoll = {
+                    .fd = fd,
+                    .events = POLLERR | POLLPRI,
+                    .revents = 0,
+            };
+
+            // Arm sysfs_notify
+            readBool(fd);
+
+            while (true) {
+                int rc = poll(&fodPressPoll, 1, -1);
+                if (rc < 0) {
+                    LOG(ERROR) << "failed to poll " << FOD_STATUS_PATH << ", err: " << rc;
+                    continue;
+                }
+
+                if (readBool(fd)) {
+                    continue;
+                }
+
+                LOG(DEBUG) << "finger up reported by the touch driver";
+                authDoneAt_ = kNoAuth;
+                if (fingerDown_) {
+                    setFingerDown(false);
+                }
+            }
+        }).detach();
     }
 
     void onFingerDown(uint32_t x, uint32_t y, float /*minor*/, float /*major*/) {
@@ -153,6 +192,14 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
         // Track x and y coordinates
         lastPressX = x;
         lastPressY = y;
+
+        // After a successful capture SystemUI re-creates the UDFPS overlay and sends another
+        // pointer-down while the same finger is still on the sensor. Don't light the sensor up
+        // again for it; the flag is cleared on the real finger-up, on cancel or after a timeout.
+        if (now() - authDoneAt_ < kSkipFingerDownAfterAuth) {
+            LOG(DEBUG) << __func__ << ": finger still down after authentication, ignoring";
+            return;
+        }
 
         // Ensure touchscreen is aware of the press state, ideally this is not needed
         setFingerDown(true);
@@ -169,14 +216,20 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
         if (result != FINGERPRINT_ACQUIRED_VENDOR) {
             if (static_cast<AcquiredInfo>(result) == AcquiredInfo::GOOD) {
                 // Request to disable HBM already, even if the finger is still pressed
+                authDoneAt_ = now();
                 setLocalHbm(false);
                 setFodStatus(FOD_STATUS_OFF);
             }
         } else if (vendorCode == 21 || vendorCode == 23) {
             /*
-             * vendorCode = 21 waiting for fingerprint authentication
-             * vendorCode = 23 waiting for fingerprint enroll
+             * vendorCode = 21 waiting for a finger (new authentication or enrollment step)
+             * vendorCode = 23 finger up acknowledged by the HAL
+             * Both (re-)arm finger detection in the touch controller, which the screen-off
+             * unlock relies on.
              */
+            if (vendorCode == 21) {
+                authDoneAt_ = kNoAuth;
+            }
             setFodStatus(FOD_STATUS_ON);
         } else if (vendorCode == 44) {
             /*
@@ -198,11 +251,26 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
 
     void cancel() {
         LOG(DEBUG) << __func__;
+        authDoneAt_ = kNoAuth;
         setLocalHbm(false);
         setFodStatus(FOD_STATUS_OFF);
     }
 
   private:
+    // Upper bound for ignoring pointer-downs after a successful capture, in case the finger-up
+    // from the touch driver is lost too.
+    static constexpr int64_t kSkipFingerDownAfterAuth = 2000;  // ms
+    static constexpr int64_t kNoAuth = INT64_MIN / 2;
+
+    static int64_t now() {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(
+                       std::chrono::steady_clock::now().time_since_epoch())
+                .count();
+    }
+
+    std::atomic<int64_t> authDoneAt_{kNoAuth};
+    std::atomic<bool> fingerDown_{false};
+
     // The finger-up can get lost, e.g. on the last enrollment step the HAL reports the enrollment
     // done without ACQUIRED_GOOD and SystemUI's pointer-up then arrives with no client. Never
     // leave the 1000-nit white circle on for longer than this; a capture takes ~0.1-0.3 s.
@@ -242,6 +310,8 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
     }
 
     void setFingerDown(bool pressed) {
+        fingerDown_ = pressed;
+
         // xiaomi-touch
         int arg[3] = {Touch_Fod_Enable, pressed ? 1 : 0};
         ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
