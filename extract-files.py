@@ -107,7 +107,12 @@ blob_fixups: blob_fixups_user_type = {
     # created, e.g. right after the HAL restarted mid codec-list enumeration, the type is still
     # unknown and it abort()s, so the HAL crash-loops. Fall through into the DMA path instead
     # (b.ne -> nop at 0x9e224), which is what the secure encoder uses on every good boot.
-    "vendor/lib64/libcodec2_mtk_venc.so": blob_fixup().binary_regex_replace(
+    # Same code (and byte pattern) in the decoder library, b.ne -> nop at 0x9a7e0: there the secure
+    # decoders crash-loop the HAL the same way.
+    (
+        "vendor/lib64/libcodec2_mtk_vdec.so",
+        "vendor/lib64/libcodec2_mtk_venc.so",
+    ): blob_fixup().binary_regex_replace(
         b"\xa8\x02\x40\xb9\x1f\x05\x00\x71\x40\x05\x00\x54\x1f\x0d\x00\x71\xc1\x03\x00\x54",
         b"\xa8\x02\x40\xb9\x1f\x05\x00\x71\x40\x05\x00\x54\x1f\x0d\x00\x71\x1f\x20\x03\xd5",
     ),
