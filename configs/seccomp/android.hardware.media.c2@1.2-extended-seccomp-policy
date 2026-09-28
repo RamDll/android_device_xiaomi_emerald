@@ -25,3 +25,8 @@ mlock: 1
 munlock: 1
 setsockopt: 1
 socket: 1
+
+# Needed by the debuggerd handler to write a tombstone (e.g. for a seccomp SIGSYS), from
+# system/core/debuggerd/seccomp_policy/crash_dump.arm64.policy; the rest is already allowed.
+sysinfo: 1
+uname: 1
