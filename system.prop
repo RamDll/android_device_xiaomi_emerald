@@ -1,6 +1,6 @@
 # RIL
-vendor.rild.libpath=mtk-ril.so
-vendor.rild.libargs=-d /dev/ttyC0
+# No vendor.rild.libpath: the modem is served by mtkfusionrild (vendor.ril-daemon-mtk). Pointing
+# the AOSP rild at the missing mtk-ril.so made it exit and restart every 5 s.
 ro.radio.device_type=1
 
 # Connsys
