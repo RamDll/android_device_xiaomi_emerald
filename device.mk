@@ -179,10 +179,8 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.hardware.cas@1.2-service-lazy
 
-# Media (C2)
+# Media (C2): the Codec2 HAL runs on the stock codec2 libs (-v31, see extract-files.py)
 PRODUCT_PACKAGES += \
-    libcodec2_hidl_plugin:64 \
-    libcodec2_soft_common.vendor:64 \
     libeffects:64 \
     libeffectsconfig.vendor:64
 

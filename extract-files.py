@@ -96,10 +96,58 @@ blob_fixups: blob_fixups_user_type = {
     .replace_needed("libsensorndkbridge.so", "android.hardware.sensors@1.0-convert-shared.so"),
     "vendor/lib64/mt6789/libcam.utils.sensorprovider.so": blob_fixup()
     .add_needed("android.hardware.sensors@1.0-convert-shared.so"),
+    # The stock Codec2 HAL is built against the Android 12 ("for Android 31") codec2 libs, e.g. it
+    # allocates 0x108 bytes for utils::ComponentStore while the A16 libcodec2_hidl@1.2 constructs
+    # RefBase at +0x110 -> heap corruption at every start. Run it on the stock codec2 set (-v31)
+    # with a single libstagefright_foundation (-v33) in the whole process, like xiaomi/earth.
     "vendor/bin/hw/android.hardware.media.c2@1.2-mediatek-64b": blob_fixup()
     .patchelf_version(patchelf_version)
     .replace_needed("libavservices_minijail_vendor.so", "libavservices_minijail.so")
-    .add_needed("libstagefright_foundation-v33.so"),
+    .replace_needed("libcodec2_hidl@1.0.so", "libcodec2_hidl@1.0-v31.so")
+    .replace_needed("libcodec2_hidl@1.1.so", "libcodec2_hidl@1.1-v31.so")
+    .replace_needed("libcodec2_hidl@1.2.so", "libcodec2_hidl@1.2-v31.so")
+    .replace_needed("libcodec2_vndk.so", "libcodec2_vndk-v31.so"),
+    (
+        "vendor/lib64/libcodec2_hidl@1.0-v31.so",
+        "vendor/lib64/libcodec2_hidl@1.1-v31.so",
+        "vendor/lib64/libcodec2_hidl@1.2-v31.so",
+    ): blob_fixup()
+    .patchelf_version(patchelf_version)
+    .replace_needed("libstagefright_bufferqueue_helper.so", "libstagefright_bufferqueue_helper-v31.so")
+    .replace_needed("libcodec2_hidl@1.0.so", "libcodec2_hidl@1.0-v31.so")
+    .replace_needed("libcodec2_hidl@1.1.so", "libcodec2_hidl@1.1-v31.so")
+    .replace_needed("libcodec2_hidl_plugin.so", "libcodec2_hidl_plugin-v31.so")
+    .replace_needed("libcodec2_vndk.so", "libcodec2_vndk-v31.so")
+    .replace_needed("libui.so", "libui-v34.so")
+    .add_needed("libbase_shim.so"),
+    "vendor/lib64/libcodec2_hidl_plugin-v31.so": blob_fixup()
+    .patchelf_version(patchelf_version)
+    .replace_needed("libcodec2_vndk.so", "libcodec2_vndk-v31.so"),
+    "vendor/lib64/libcodec2_vndk-v31.so": blob_fixup()
+    .patchelf_version(patchelf_version)
+    .replace_needed("libui.so", "libui-v34.so")
+    .replace_needed("libstagefright_foundation.so", "libstagefright_foundation-v33.so"),
+    (
+        "vendor/lib64/libcodec2_soft_common-v31.so",
+        "vendor/lib64/libsfplugin_ccodec_utils-v31.so",
+    ): blob_fixup()
+    .patchelf_version(patchelf_version)
+    .replace_needed("libcodec2_vndk.so", "libcodec2_vndk-v31.so")
+    .replace_needed("libsfplugin_ccodec_utils.so", "libsfplugin_ccodec_utils-v31.so")
+    .replace_needed("libstagefright_foundation.so", "libstagefright_foundation-v33.so"),
+    "vendor/lib64/libstagefright_bufferqueue_helper-v31.so": blob_fixup()
+    .patchelf_version(patchelf_version)
+    .replace_needed("libstagefright_foundation.so", "libstagefright_foundation-v33.so"),
+    (
+        "vendor/lib64/libcodec2_mtk_c2store.so",
+        "vendor/lib64/libcodec2_vpp_qt_plugin.so",
+        "vendor/lib64/libcodec2_vpp_rs_plugin.so",
+    ): blob_fixup()
+    .patchelf_version(patchelf_version)
+    .replace_needed("libcodec2_soft_common.so", "libcodec2_soft_common-v31.so")
+    .replace_needed("libcodec2_vndk.so", "libcodec2_vndk-v31.so")
+    .replace_needed("libsfplugin_ccodec_utils.so", "libsfplugin_ccodec_utils-v31.so")
+    .replace_needed("libstagefright_foundation.so", "libstagefright_foundation-v33.so"),
     "vendor/etc/init/android.hardware.media.c2@1.2-mediatek.rc": blob_fixup()
     .regex_replace("@1.2-mediatek", "@1.2-mediatek-64b"),
     # MemoryDevice(bool secure) picks its backend once per process from the first non-secure
@@ -112,10 +160,17 @@ blob_fixups: blob_fixups_user_type = {
     (
         "vendor/lib64/libcodec2_mtk_vdec.so",
         "vendor/lib64/libcodec2_mtk_venc.so",
-    ): blob_fixup().binary_regex_replace(
+    ): blob_fixup()
+    .binary_regex_replace(
         b"\xa8\x02\x40\xb9\x1f\x05\x00\x71\x40\x05\x00\x54\x1f\x0d\x00\x71\xc1\x03\x00\x54",
         b"\xa8\x02\x40\xb9\x1f\x05\x00\x71\x40\x05\x00\x54\x1f\x0d\x00\x71\x1f\x20\x03\xd5",
-    ),
+    )
+    .patchelf_version(patchelf_version)
+    .replace_needed("libcodec2_soft_common.so", "libcodec2_soft_common-v31.so")
+    .replace_needed("libcodec2_vndk.so", "libcodec2_vndk-v31.so")
+    .replace_needed("libsfplugin_ccodec_utils.so", "libsfplugin_ccodec_utils-v31.so")
+    .replace_needed("libstagefright_foundation.so", "libstagefright_foundation-v33.so")
+    .replace_needed("libui.so", "libui-v34.so"),
     "vendor/etc/init/android.hardware.bluetooth@1.1-service-mediatek.rc": blob_fixup().regex_replace(
         "on property:vts(.|\n)*", ""
     ),
