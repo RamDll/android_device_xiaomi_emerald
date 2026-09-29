@@ -14,6 +14,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <cstring>
 #include <string>
 
 #define SET_CUR_VALUE 0
@@ -54,13 +55,12 @@ void setTouchMode(int mode, int value) {
     }
 }
 
-bool testBit(int bit, const unsigned long* array) {
-    constexpr int kBitsPerLong = sizeof(unsigned long) * 8;
-    return (array[bit / kBitsPerLong] >> (bit % kBitsPerLong)) & 1;
-}
+// emerald ships with either a Focaltech (fts_ts) or a Goodix (goodix_ts) touchscreen.
+constexpr const char* kTouchNames[] = {"fts_ts", "goodix_ts"};
 
-// Returns the touchscreen's input device, i.e. the one reporting multitouch positions.
-unique_fd openTouchInputDevice() {
+// Returns the touchscreen's input device (by name: "fts_ts,pen" also reports multitouch
+// positions) and optionally its name.
+unique_fd openTouchInputDevice(std::string* touchName = nullptr) {
     std::unique_ptr<DIR, decltype(&closedir)> dir(opendir("/dev/input"), closedir);
     if (!dir) {
         PLOG(ERROR) << "Failed to open /dev/input";
@@ -72,14 +72,26 @@ unique_fd openTouchInputDevice() {
         std::string path = "/dev/input/" + name;
         unique_fd fd(open(path.c_str(), O_RDWR | O_CLOEXEC));
         if (fd < 0) continue;
-        unsigned long absBits[(ABS_MAX + 1) / (sizeof(unsigned long) * 8) + 1] = {};
-        if (ioctl(fd.get(), EVIOCGBIT(EV_ABS, sizeof(absBits)), absBits) < 0) continue;
-        if (testBit(ABS_MT_POSITION_X, absBits)) {
-            return fd;
+        char devName[64] = {};
+        if (ioctl(fd.get(), EVIOCGNAME(sizeof(devName) - 1), devName) < 0) continue;
+        for (const char* touch : kTouchNames) {
+            if (strcmp(devName, touch) == 0) {
+                if (touchName) *touchName = devName;
+                return fd;
+            }
         }
     }
     LOG(ERROR) << "No touchscreen input device found";
     return {};
+}
+
+bool isGoodixTouch() {
+    static const bool goodix = [] {
+        std::string name;
+        openTouchInputDevice(&name);
+        return name == "goodix_ts";
+    }();
+    return goodix;
 }
 
 void setDoubleTapToWake(bool enabled) {
@@ -115,10 +127,15 @@ bool setDeviceSpecificMode(Mode type, bool enabled) {
             setDoubleTapToWake(enabled);
             return true;
         case Mode::DISPLAY_INACTIVE:
-            // Re-arm finger detection on the UDFPS area whenever the screen goes off; the UDFPS
-            // handler turns it off after each touch and nothing else re-enables it. Leave it alone
-            // when the screen comes back, SystemUI and the handler drive it from there.
-            if (enabled) setTouchMode(TOUCH_FOD_ENABLE, 1);
+            // Re-arm finger detection on the UDFPS area whenever the screen goes off; on the FTS
+            // touchscreen the UDFPS handler turns it off after each touch and nothing else
+            // re-enables it. Leave it alone when the screen comes back, SystemUI and the handler
+            // drive it from there.
+            // Not on Goodix: this arrives after the touch has entered gesture mode, where the
+            // driver answers a mode change with a chip reset that loses its charger mode, and with
+            // a charger plugged in every later touch/gesture event fails its checksum (no double
+            // tap, no screen-off fingerprint). The UDFPS handler keeps FOD enabled there instead.
+            if (enabled && !isGoodixTouch()) setTouchMode(TOUCH_FOD_ENABLE, 1);
             return true;
         default:
             return false;

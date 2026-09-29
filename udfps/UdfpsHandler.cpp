@@ -10,10 +10,15 @@
 #include <android-base/logging.h>
 #include <android-base/unique_fd.h>
 
+#include <dirent.h>
+#include <linux/input.h>
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <fstream>
 #include <atomic>
+#include <cstring>
+#include <memory>
+#include <string>
 #include <cstdint>
 #include <chrono>
 #include <thread>
@@ -303,18 +308,46 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
     android::base::unique_fd touch_fd_;
     uint32_t lastPressX, lastPressY;
 
-    void setFodStatus(int value) {
-        set(FOD_STATUS_PATH, value);
+    // emerald ships with a Focaltech (fts_ts) or a Goodix (goodix_ts) touchscreen.
+    static bool isGoodixTouch() {
+        static const bool goodix = [] {
+            std::unique_ptr<DIR, decltype(&closedir)> dir(opendir("/dev/input"), closedir);
+            if (!dir) return false;
+            while (struct dirent* entry = readdir(dir.get())) {
+                if (strncmp(entry->d_name, "event", 5) != 0) continue;
+                std::string path = std::string("/dev/input/") + entry->d_name;
+                android::base::unique_fd fd(open(path.c_str(), O_RDONLY | O_CLOEXEC));
+                if (fd < 0) continue;
+                char name[64] = {};
+                if (ioctl(fd.get(), EVIOCGNAME(sizeof(name) - 1), name) < 0) continue;
+                if (strcmp(name, "goodix_ts") == 0) return true;
+                if (strcmp(name, "fts_ts") == 0) return false;
+            }
+            return false;
+        }();
+        return goodix;
+    }
+
+    // Touch_Fod_Enable. The Goodix driver turns off finger detection when it enters gesture
+    // mode with it off, and re-enabling it while suspended costs a chip reset that loses the
+    // charger mode (with a charger plugged in the touch then fails every event). So on Goodix
+    // keep it on all the time instead of toggling it per touch and re-arming at screen off.
+    void setTouchFod(int value) {
+        if (value == 0 && isGoodixTouch()) return;
         int arg[3] = {Touch_Fod_Enable, value};
         ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
+    }
+
+    void setFodStatus(int value) {
+        set(FOD_STATUS_PATH, value);
+        setTouchFod(value);
     }
 
     void setFingerDown(bool pressed) {
         fingerDown_ = pressed;
 
         // xiaomi-touch
-        int arg[3] = {Touch_Fod_Enable, pressed ? 1 : 0};
-        ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
+        setTouchFod(pressed ? 1 : 0);
 
         // Request HBM
         setLocalHbm(pressed);
