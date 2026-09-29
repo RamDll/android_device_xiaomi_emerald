@@ -1,0 +1,14 @@
+# PowerOffAlarm (com.qualcomm.qti.poweroffalarm, system_ext priv-app, system uid).
+# sepolicy_vndr's power_off_alarm domain is vendor policy, which Android no longer applies to
+# system_ext apps, so the app would run as system_app without access to the RTC.
+type poweroffalarm_app, domain, coredomain, mlstrustedsubject;
+
+app_domain(poweroffalarm_app)
+
+allow poweroffalarm_app system_app_data_file:dir create_dir_perms;
+allow poweroffalarm_app system_app_data_file:{ file lnk_file } create_file_perms;
+
+allow poweroffalarm_app app_api_service:service_manager find;
+
+# Program the power-off alarm into the MTK RTC (RTC_RD_TIME / RTC_POFF_ALM_SET).
+allow poweroffalarm_app rtc_device:chr_file rw_file_perms;
