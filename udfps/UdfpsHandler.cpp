@@ -190,6 +190,21 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
                 }
             }
         }).detach();
+
+        // Goodix: FOD is never turned off (see setTouchFod), but something has to turn it on.
+        // With a Goodix fingerprint HAL the vendorCode 21/23 acquired events do that; an FPC HAL
+        // doesn't send them, so after a reboot screen-off unlock stayed dead until the first
+        // screen-on touch of the sensor. Enable it once here: the HAL starts during boot with the
+        // screen on, so the touch is not in gesture mode and this costs no chip reset.
+        std::thread([this]() {
+            for (int i = 0; i < 60 && touchKind() == TouchKind::UNKNOWN; i++) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            }
+            if (touchKind() == TouchKind::GOODIX) {
+                LOG(INFO) << "Goodix touch: enabling FOD";
+                setTouchFod(1);
+            }
+        }).detach();
     }
 
     void onFingerDown(uint32_t x, uint32_t y, float /*minor*/, float /*major*/) {
@@ -308,25 +323,29 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
     android::base::unique_fd touch_fd_;
     uint32_t lastPressX, lastPressY;
 
-    // emerald ships with a Focaltech (fts_ts) or a Goodix (goodix_ts) touchscreen.
-    static bool isGoodixTouch() {
-        static const bool goodix = [] {
-            std::unique_ptr<DIR, decltype(&closedir)> dir(opendir("/dev/input"), closedir);
-            if (!dir) return false;
-            while (struct dirent* entry = readdir(dir.get())) {
-                if (strncmp(entry->d_name, "event", 5) != 0) continue;
-                std::string path = std::string("/dev/input/") + entry->d_name;
-                android::base::unique_fd fd(open(path.c_str(), O_RDONLY | O_CLOEXEC));
-                if (fd < 0) continue;
-                char name[64] = {};
-                if (ioctl(fd.get(), EVIOCGNAME(sizeof(name) - 1), name) < 0) continue;
-                if (strcmp(name, "goodix_ts") == 0) return true;
-                if (strcmp(name, "fts_ts") == 0) return false;
-            }
-            return false;
-        }();
-        return goodix;
+    // emerald ships with a Focaltech (fts_ts) or a Goodix (goodix_ts) touchscreen. The answer is
+    // only cached once one of them is found, the HAL may start before the touch driver.
+    enum class TouchKind { UNKNOWN, FTS, GOODIX };
+
+    static TouchKind touchKind() {
+        static std::atomic<TouchKind> kind{TouchKind::UNKNOWN};
+        if (kind != TouchKind::UNKNOWN) return kind;
+        std::unique_ptr<DIR, decltype(&closedir)> dir(opendir("/dev/input"), closedir);
+        if (!dir) return TouchKind::UNKNOWN;
+        while (struct dirent* entry = readdir(dir.get())) {
+            if (strncmp(entry->d_name, "event", 5) != 0) continue;
+            std::string path = std::string("/dev/input/") + entry->d_name;
+            android::base::unique_fd fd(open(path.c_str(), O_RDONLY | O_CLOEXEC));
+            if (fd < 0) continue;
+            char name[64] = {};
+            if (ioctl(fd.get(), EVIOCGNAME(sizeof(name) - 1), name) < 0) continue;
+            if (strcmp(name, "goodix_ts") == 0) return kind = TouchKind::GOODIX;
+            if (strcmp(name, "fts_ts") == 0) return kind = TouchKind::FTS;
+        }
+        return TouchKind::UNKNOWN;
     }
+
+    static bool isGoodixTouch() { return touchKind() == TouchKind::GOODIX; }
 
     // Touch_Fod_Enable. The Goodix driver turns off finger detection when it enters gesture
     // mode with it off, and re-enabling it while suspended costs a chip reset that loses the
