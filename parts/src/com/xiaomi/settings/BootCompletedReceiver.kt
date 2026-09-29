@@ -21,9 +21,13 @@ class BootCompletedReceiver : BroadcastReceiver() {
         private const val TAG = "BootReceiver"
         private val DEBUG = Log.isLoggable(TAG, Log.DEBUG)
 
-        // The panel flickers when it leaves 60 Hz, so keep it at 90 Hz or above by default.
+        // Earlier builds seeded min_refresh_rate = 90 at first boot. The 90 Hz mode is the one that
+        // visibly steps the brightness on these panels, so go back to the LineageOS default (60-120)
+        // once. This also resets a 90 the user picked by hand; the changelog says so.
         private const val MIN_REFRESH_RATE = "min_refresh_rate"
-        private const val DEFAULT_MIN_REFRESH_RATE = 90f
+        private const val OLD_SEEDED_MIN_REFRESH_RATE = 90f
+        private const val PREFS = "boot_migrations"
+        private const val KEY_MIN_REFRESH_90_RESET = "min_refresh_90_reset"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -38,9 +42,15 @@ class BootCompletedReceiver : BroadcastReceiver() {
     }
 
     private fun onLockedBootCompleted(context: Context) {
-        // Display: only seed the default, never override a value the user picked
-        if (Settings.System.getString(context.contentResolver, MIN_REFRESH_RATE) == null) {
-            Settings.System.putFloat(context.contentResolver, MIN_REFRESH_RATE, DEFAULT_MIN_REFRESH_RATE)
+        // Display: one-time migration away from the old 90 Hz minimum
+        val prefs = context.createDeviceProtectedStorageContext()
+            .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        if (!prefs.getBoolean(KEY_MIN_REFRESH_90_RESET, false)) {
+            val min = Settings.System.getFloat(context.contentResolver, MIN_REFRESH_RATE, 0f)
+            if (min == OLD_SEEDED_MIN_REFRESH_RATE) {
+                Settings.System.putFloat(context.contentResolver, MIN_REFRESH_RATE, 0f)
+            }
+            prefs.edit().putBoolean(KEY_MIN_REFRESH_90_RESET, true).apply()
         }
 
         // Battery
