@@ -80,7 +80,8 @@ static bool readBool(int fd) {
 }
 
 static disp_event_resp* parseDispEvent(int fd) {
-    static char event_data[1024] = {0};
+    // Per thread: the FOD and the power event threads both parse events.
+    thread_local char event_data[1024] = {0};
     ssize_t size = read(fd, event_data, sizeof(event_data));
 
     if (size < 0) {
@@ -191,18 +192,59 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
             }
         }).detach();
 
+        // Track the panel power state (MI_DISP_EVENT_POWER carries MI_DISP_DPMS_ON = 0 when the
+        // screen is on). The HAL starts during boot with the screen on.
+        std::thread([this]() {
+            int fd = open(DISP_FEATURE_PATH, O_RDWR);
+            if (fd < 0) {
+                LOG(ERROR) << "failed to open " << DISP_FEATURE_PATH << " , err: " << fd;
+                return;
+            }
+
+            disp_event_req req;
+            req.base.flag = 0;
+            req.base.disp_id = MI_DISP_PRIMARY;
+            req.type = MI_DISP_EVENT_POWER;
+            ioctl(fd, MI_DISP_IOCTL_REGISTER_EVENT, &req);
+
+            struct pollfd powerPoll = {
+                    .fd = fd,
+                    .events = POLLIN,
+                    .revents = 0,
+            };
+
+            while (true) {
+                int rc = poll(&powerPoll, 1, -1);
+                if (rc < 0) {
+                    LOG(ERROR) << "failed to poll " << DISP_FEATURE_PATH << ", err: " << rc;
+                    continue;
+                }
+
+                struct disp_event_resp* response = parseDispEvent(fd);
+                if (response == nullptr || response->base.type != MI_DISP_EVENT_POWER) {
+                    continue;
+                }
+                screenOn_ = response->data[0] == 0;
+            }
+        }).detach();
+
         // Goodix: FOD is never turned off (see setTouchFod), but something has to turn it on.
         // With a Goodix fingerprint HAL the vendorCode 21/23 acquired events do that; an FPC HAL
         // doesn't send them, so after a reboot screen-off unlock stayed dead until the first
-        // screen-on touch of the sensor. Enable it once here: the HAL starts during boot with the
-        // screen on, so the touch is not in gesture mode and this costs no chip reset.
+        // screen-on touch of the sensor. The driver keeps the flag across its own resets, so
+        // enabling it once is enough, but it silently drops the write until its second init
+        // stage is done, which may be after this HAL starts. So repeat it every 2 s for the
+        // first 30 s, only while the screen is on: then the write just updates the flag, while
+        // in gesture mode it would cost a chip reset that loses the charger mode.
         std::thread([this]() {
             for (int i = 0; i < 60 && touchKind() == TouchKind::UNKNOWN; i++) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
-            if (touchKind() == TouchKind::GOODIX) {
-                LOG(INFO) << "Goodix touch: enabling FOD";
-                setTouchFod(1);
+            if (touchKind() != TouchKind::GOODIX) return;
+            LOG(INFO) << "Goodix touch: enabling FOD";
+            for (int i = 0; i < 15; i++) {
+                if (screenOn_) setTouchFod(1);
+                std::this_thread::sleep_for(std::chrono::seconds(2));
             }
         }).detach();
     }
@@ -289,6 +331,7 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
     }
 
     std::atomic<int64_t> authDoneAt_{kNoAuth};
+    std::atomic<bool> screenOn_{true};
     std::atomic<bool> fingerDown_{false};
 
     // The finger-up can get lost, e.g. on the last enrollment step the HAL reports the enrollment
