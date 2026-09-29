@@ -400,5 +400,6 @@ PRODUCT_COPY_FILES += \
 $(call inherit-product, vendor/xiaomi/emerald/emerald-vendor.mk)
 
 # GApps (MindTheGapps, synced to vendor/gapps by the local manifest). The user-build recovery
-# can't install the flashable zip, so ship them in the image.
-$(call inherit-product-if-exists, vendor/gapps/arm64/arm64-vendor.mk)
+# can't install the flashable zip, so ship them in the image. Required: a build without them
+# must fail instead of quietly shipping no Play services.
+$(call inherit-product, vendor/gapps/arm64/arm64-vendor.mk)
