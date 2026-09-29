@@ -14,7 +14,6 @@
 #include <linux/input.h>
 #include <poll.h>
 #include <sys/ioctl.h>
-#include <fstream>
 #include <atomic>
 #include <cstring>
 #include <memory>
@@ -53,12 +52,6 @@
 using ::aidl::android::hardware::biometrics::fingerprint::AcquiredInfo;
 
 namespace {
-
-template <typename T>
-static void set(const std::string& path, const T& value) {
-    std::ofstream file(path);
-    file << value;
-}
 
 static bool readBool(int fd) {
     char c;
@@ -400,10 +393,8 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
         ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
     }
 
-    void setFodStatus(int value) {
-        set(FOD_STATUS_PATH, value);
-        setTouchFod(value);
-    }
+    // fod_press_status is read-only (no store in xiaomi_touch), only the ioctl matters.
+    void setFodStatus(int value) { setTouchFod(value); }
 
     void setFingerDown(bool pressed) {
         fingerDown_ = pressed;
