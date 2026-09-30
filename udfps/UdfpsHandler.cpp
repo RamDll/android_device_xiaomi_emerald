@@ -256,6 +256,15 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
             return;
         }
 
+        // On a quick tap the pointer-down reaches us after the finger has already left the
+        // sensor. Lighting the sensor then only leaves a glow over an empty sensor until the
+        // failed attempt or the timeout clears it, so skip it if the touch driver already
+        // reports the finger up.
+        if (!fodPressed()) {
+            LOG(DEBUG) << __func__ << ": finger already up, not lighting the sensor";
+            return;
+        }
+
         // Ensure touchscreen is aware of the press state, ideally this is not needed
         setFingerDown(true);
     }
@@ -391,6 +400,16 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
         if (value == 0 && isGoodixTouch()) return;
         int arg[3] = {Touch_Fod_Enable, value};
         ioctl(touch_fd_, TOUCH_IOC_SETMODE, &arg);
+    }
+
+    // Whether the touch driver sees a finger on the sensor. Assume it does if the node can't be
+    // read, so a missing node never keeps the sensor dark.
+    static bool fodPressed() {
+        android::base::unique_fd fd(open(FOD_STATUS_PATH, O_RDONLY | O_CLOEXEC));
+        if (fd < 0) return true;
+        char c;
+        if (read(fd.get(), &c, 1) != 1) return true;
+        return c != '0';
     }
 
     // fod_press_status is read-only (no store in xiaomi_touch), only the ioctl matters.
