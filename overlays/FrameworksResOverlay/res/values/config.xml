@@ -550,6 +550,12 @@
          fp screen off unlock-->
     <bool name="config_screen_off_udfps_default_on">true</bool>
 
+    <!-- The panel lights the sensor itself (local HBM through the UDFPS handler), so don't let
+         SystemUI draw its own white illumination dot and vote for a refresh rate while a finger
+         is down. On a quick tap on AOD the finger-up never reaches SystemUI and the dot stayed up
+         over the lifted finger for ~1 s. -->
+    <bool name="config_ignoreUdfpsVote">true</bool>
+
     <!-- Whether to cleanup fingerprints upon connection to the daemon and when user switches -->
     <bool name="config_cleanupUnusedFingerprints">false</bool>
 
