@@ -298,11 +298,14 @@ ro.surface_flinger.has_HDR_display=true
 ro.surface_flinger.protected_contents=true
 ro.surface_flinger.supports_background_blur=0
 ro.surface_flinger.use_color_management=true
-# Same refresh rate policy as stock: no per-content switching (it made SurfaceFlinger change the
-# DSI mode ~20 times a minute and the panel ESD check occasionally failed -> screen blink), drop to
-# the minimum after 600 ms without frames, back to the maximum on touch.
-ro.surface_flinger.set_idle_timer_ms=600
-ro.surface_flinger.set_touch_timer_ms=600
+# Refresh rate policy: no per-content switching. Every DSI mode switch risks the panel raising its
+# ERR_FG line, which the MTK ESD check answers with a panel reset (screen blink, brightness at max);
+# with stock's 600 ms timers 60-120 still switched ~20 times a minute. Use the longer timers of the
+# official LineageOS Xiaomi sweet tree: drop to the minimum after 4 s without frames, stay at the
+# maximum for 4 s after a touch and for 1 s after the display powers on.
+ro.surface_flinger.set_idle_timer_ms=4000
+ro.surface_flinger.set_touch_timer_ms=4000
+ro.surface_flinger.set_display_power_timer_ms=1000
 ro.surface_flinger.use_content_detection_for_refresh_rate=false
 ro.surface_flinger.wcg_composition_dataspace=143261696
 
