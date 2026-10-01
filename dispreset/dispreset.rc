@@ -1,0 +1,9 @@
+# Power-cycle the panel once, before the composer takes over the display that LK left on.
+service vendor.dispreset /vendor/bin/dispreset
+    user system
+    group graphics
+    oneshot
+    disabled
+
+on late-fs
+    exec_start vendor.dispreset
