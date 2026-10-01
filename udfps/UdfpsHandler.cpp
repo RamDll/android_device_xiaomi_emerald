@@ -15,6 +15,7 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <atomic>
+#include <cerrno>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -179,6 +180,7 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
 
                 LOG(DEBUG) << "finger up reported by the touch driver";
                 authDoneAt_ = kNoAuth;
+                ++pressGeneration_;
                 if (fingerDown_) {
                     setFingerDown(false);
                 }
@@ -256,21 +258,37 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
             return;
         }
 
-        // On a quick tap the pointer-down reaches us after the finger has already left the
-        // sensor. Lighting the sensor then only leaves a glow over an empty sensor until the
-        // failed attempt or the timeout clears it, so skip it if the touch driver already
-        // reports the finger up.
-        if (!fodPressed()) {
-            LOG(DEBUG) << __func__ << ": finger already up, not lighting the sensor";
+        uint32_t generation = ++pressGeneration_;
+        if (fodPressed()) {
+            // Ensure touchscreen is aware of the press state, ideally this is not needed
+            setFingerDown(true);
             return;
         }
 
-        // Ensure touchscreen is aware of the press state, ideally this is not needed
-        setFingerDown(true);
+        // On a quick tap the pointer-down reaches us after the finger has already left the
+        // sensor, and lighting the sensor then only leaves a glow over an empty sensor. But the
+        // touch firmware also raises its FOD flag a few scan frames after the first contact
+        // (~13 ms seen on Goodix), so a pointer-down often arrives before it, and on a partial
+        // touch (normal while enrolling) it may never raise it at all. So wait off the binder
+        // thread: light the sensor once the flag goes up, or after the wait if the finger is
+        // still down; skip only when the finger went up in the meantime.
+        std::thread([this, generation]() {
+            FodWait result = waitForFodPress();
+            if (pressGeneration_ != generation) {
+                LOG(DEBUG) << "onFingerDown: finger up while waiting, not lighting the sensor";
+                return;
+            }
+            if (result == FodWait::RELEASED) {
+                LOG(DEBUG) << "onFingerDown: quick tap, not lighting the sensor";
+                return;
+            }
+            setFingerDown(true);
+        }).detach();
     }
 
     void onFingerUp() {
         LOG(DEBUG) << __func__;
+        ++pressGeneration_;
         // Ensure touchscreen is aware of the press state, ideally this is not needed
         setFingerDown(false);
     }
@@ -316,6 +334,7 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
     void cancel() {
         LOG(DEBUG) << __func__;
         authDoneAt_ = kNoAuth;
+        ++pressGeneration_;
         setLocalHbm(false);
         setFodStatus(FOD_STATUS_OFF);
     }
@@ -335,6 +354,13 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
     std::atomic<int64_t> authDoneAt_{kNoAuth};
     std::atomic<bool> screenOn_{true};
     std::atomic<bool> fingerDown_{false};
+    // Bumped on every pointer-down, finger-up and cancel, so a pending FOD wait knows whether its
+    // touch is still the current one.
+    std::atomic<uint32_t> pressGeneration_{0};
+
+    // How long a pointer-down waits for the touch firmware's FOD flag: well over the 2-3 scan
+    // frames (~5 ms each) it usually takes.
+    static constexpr int kFodPressWaitMs = 80;
 
     // The finger-up can get lost, e.g. on the last enrollment step the HAL reports the enrollment
     // done without ACQUIRED_GOOD and SystemUI's pointer-up then arrives with no client. Never
@@ -410,6 +436,34 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
         char c;
         if (read(fd.get(), &c, 1) != 1) return true;
         return c != '0';
+    }
+
+    enum class FodWait { PRESSED, RELEASED, TIMEOUT };
+
+    // Waits for fod_press_status to go to 1. xiaomi_touch sysfs_notify()s every change, and the
+    // read before poll() arms it, so a change in between is not lost. Waking up to a 0 means it
+    // went up and down again: a quick tap.
+    static FodWait waitForFodPress() {
+        android::base::unique_fd fd(open(FOD_STATUS_PATH, O_RDONLY | O_CLOEXEC));
+        if (fd < 0) return FodWait::TIMEOUT;
+        if (readBool(fd.get())) return FodWait::PRESSED;
+
+        struct pollfd fodPressPoll = {
+                .fd = fd.get(),
+                .events = POLLERR | POLLPRI,
+                .revents = 0,
+        };
+        int64_t deadline = now() + kFodPressWaitMs;
+        for (int64_t left = kFodPressWaitMs; left > 0; left = deadline - now()) {
+            int rc = poll(&fodPressPoll, 1, left);
+            if (rc == 0) break;
+            if (rc < 0) {
+                if (errno == EINTR) continue;
+                break;
+            }
+            return readBool(fd.get()) ? FodWait::PRESSED : FodWait::RELEASED;
+        }
+        return FodWait::TIMEOUT;
     }
 
     // fod_press_status is read-only (no store in xiaomi_touch), only the ioctl matters.
