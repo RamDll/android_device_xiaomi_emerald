@@ -266,19 +266,26 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
         }
 
         // On a quick tap the pointer-down reaches us after the finger has already left the
-        // sensor, and lighting the sensor then only leaves a glow over an empty sensor. But the
-        // touch firmware also raises its FOD flag a few scan frames after the first contact
-        // (~13 ms seen on Goodix), so a pointer-down often arrives before it, and on a partial
-        // touch (normal while enrolling) it may never raise it at all. So wait off the binder
-        // thread: light the sensor once the flag goes up, or after the wait if the finger is
-        // still down; skip only when the finger went up in the meantime.
+        // screen, possibly after the FOD flag already went up and down again.
+        if (!touchDown()) {
+            LOG(DEBUG) << __func__ << ": finger already up, not lighting the sensor";
+            return;
+        }
+
+        // The finger is still on the screen but the FOD flag isn't up yet: the touch firmware
+        // raises it a few scan frames after the first contact (~13 ms seen on Goodix), and on a
+        // partial touch (normal while enrolling) it may never raise it at all. So wait off the
+        // binder thread: light the sensor once the flag goes up, or after the wait if the finger
+        // is still on the screen; skip when it went up in the meantime, since lighting an empty
+        // sensor only leaves a glow until the failed capture.
         std::thread([this, generation]() {
             FodWait result = waitForFodPress();
             if (pressGeneration_ != generation) {
                 LOG(DEBUG) << "onFingerDown: finger up while waiting, not lighting the sensor";
                 return;
             }
-            if (result == FodWait::RELEASED) {
+            if (result == FodWait::RELEASED ||
+                (result == FodWait::TIMEOUT && !touchDown())) {
                 LOG(DEBUG) << "onFingerDown: quick tap, not lighting the sensor";
                 return;
             }
@@ -398,6 +405,9 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
     // only cached once one of them is found, the HAL may start before the touch driver.
     enum class TouchKind { UNKNOWN, FTS, GOODIX };
 
+    // The touchscreen's input event node, set once touchKind() has found it.
+    static inline std::string touchEventPath_;
+
     static TouchKind touchKind() {
         static std::atomic<TouchKind> kind{TouchKind::UNKNOWN};
         if (kind != TouchKind::UNKNOWN) return kind;
@@ -410,13 +420,30 @@ class XiaomiEmeraldUdfpsHandler : public UdfpsHandler {
             if (fd < 0) continue;
             char name[64] = {};
             if (ioctl(fd.get(), EVIOCGNAME(sizeof(name) - 1), name) < 0) continue;
-            if (strcmp(name, "goodix_ts") == 0) return kind = TouchKind::GOODIX;
-            if (strcmp(name, "fts_ts") == 0) return kind = TouchKind::FTS;
+            if (strcmp(name, "goodix_ts") == 0) {
+                touchEventPath_ = path;
+                return kind = TouchKind::GOODIX;
+            }
+            if (strcmp(name, "fts_ts") == 0) {
+                touchEventPath_ = path;
+                return kind = TouchKind::FTS;
+            }
         }
         return TouchKind::UNKNOWN;
     }
 
     static bool isGoodixTouch() { return touchKind() == TouchKind::GOODIX; }
+
+    // Whether any finger is on the touchscreen right now (BTN_TOUCH key state). Assume it is if
+    // that can't be read, so a missing node never keeps the sensor dark.
+    static bool touchDown() {
+        if (touchKind() == TouchKind::UNKNOWN) return true;
+        android::base::unique_fd fd(open(touchEventPath_.c_str(), O_RDONLY | O_CLOEXEC));
+        if (fd < 0) return true;
+        uint8_t keys[KEY_MAX / 8 + 1] = {};
+        if (ioctl(fd.get(), EVIOCGKEY(sizeof(keys)), keys) < 0) return true;
+        return keys[BTN_TOUCH / 8] & (1 << (BTN_TOUCH % 8));
+    }
 
     // Touch_Fod_Enable. The Goodix driver turns off finger detection when it enters gesture
     // mode with it off, and re-enabling it while suspended costs a chip reset that loses the
