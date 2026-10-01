@@ -3,4 +3,5 @@ type vendor_dispreset_exec, exec_type, vendor_file_type, file_type;
 
 init_daemon_domain(vendor_dispreset)
 
+allow vendor_dispreset gpu_device:dir search;
 allow vendor_dispreset dri_device:chr_file rw_file_perms;
