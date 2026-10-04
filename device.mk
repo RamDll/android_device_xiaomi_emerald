@@ -129,6 +129,9 @@ PRODUCT_PACKAGES += \
     android.software.vulkan.deqp.level-2024-03-01.prebuilt.xml \
     android.software.opengles.deqp.level-2024-03-01.prebuilt.xml
 
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/gpu/mali_platform.config:$(TARGET_COPY_OUT_VENDOR)/etc/mali_platform.config
+
 # DRM (Clearkey)
 PRODUCT_PACKAGES += \
     com.android.hardware.drm.clearkey
