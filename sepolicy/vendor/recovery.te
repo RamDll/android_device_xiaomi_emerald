@@ -1,0 +1,5 @@
+# The battery and charger power_supply nodes are labeled sysfs_power_supply here,
+# AOSP only lets recovery read sysfs_batteryinfo -> it always showed 100 %.
+recovery_only(`
+  r_dir_file(recovery, sysfs_power_supply)
+')
