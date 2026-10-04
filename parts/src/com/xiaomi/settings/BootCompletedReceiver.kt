@@ -31,6 +31,10 @@ class BootCompletedReceiver : BroadcastReceiver() {
         private const val DEFAULT_MIN_REFRESH_RATE = 60f
         private const val PREFS = "boot_migrations"
         private const val KEY_MIN_REFRESH_60 = "min_refresh_60"
+
+        // Blur makes SurfaceFlinger compose the whole screen on the GPU. It is supported now, but
+        // starts disabled; Developer options -> "Allow window-level blurs" turns it on.
+        private const val KEY_BLURS_OFF = "blurs_off"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -58,6 +62,17 @@ class BootCompletedReceiver : BroadcastReceiver() {
                 )
             }
             prefs.edit().putBoolean(KEY_MIN_REFRESH_60, true).apply()
+        }
+
+        // Display: blur off by default, once, unless the user already chose
+        if (!prefs.getBoolean(KEY_BLURS_OFF, false)) {
+            if (Settings.Global.getString(
+                    context.contentResolver, Settings.Global.DISABLE_WINDOW_BLURS) == null) {
+                Settings.Global.putInt(
+                    context.contentResolver, Settings.Global.DISABLE_WINDOW_BLURS, 1
+                )
+            }
+            prefs.edit().putBoolean(KEY_BLURS_OFF, true).apply()
         }
 
         // Battery
