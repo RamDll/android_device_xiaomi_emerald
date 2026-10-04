@@ -5,3 +5,4 @@ init_daemon_domain(vendor_dispreset)
 
 allow vendor_dispreset gpu_device:dir search;
 allow vendor_dispreset dri_device:chr_file rw_file_perms;
+set_prop(vendor_dispreset, vendor_dispreset_prop)

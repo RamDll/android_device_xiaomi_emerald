@@ -10,6 +10,7 @@ cc_binary {
     srcs: ["dispreset.cpp"],
     init_rc: ["dispreset.rc"],
     shared_libs: [
+        "libbase",
         "libdrm",
         "liblog",
     ],
