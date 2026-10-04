@@ -736,3 +736,9 @@ on property:sys.boot_completed=1 && property:ro.debuggable="1"
 on early-init
     write /proc/sys/kernel/printk "4 4 1 7"
     chmod 000 /sys/class/power_supply/battery/first_usage_date
+
+# SurfaceFlinger's RenderEngine runs on Vulkan (vendor.prop). persist.log.tag.* is the only
+# persistent property the shell may set on a user build, so it carries the switch back to GLES.
+# Persistent properties load at post-fs-data, before surfaceflinger starts on boot.
+on property:persist.log.tag.emerald_sf_gles=1
+    setprop debug.renderengine.backend skiaglthreaded
