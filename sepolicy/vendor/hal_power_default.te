@@ -29,6 +29,8 @@ allow hal_power_default sysfs_leds:dir search;
 allow hal_power_default sysfs_leds:file rw_file_perms;
 
 # ADPF: set uclamp/scheduling on the threads of hint session owners (as on Pixel)
+# (apps run with per-user MLS categories, so the power HAL must be MLS-trusted to reach them)
+typeattribute hal_power_default mlstrustedsubject;
 allow hal_power_default self:capability sys_nice;
 allow hal_power_default appdomain:process { getsched setsched };
 allow hal_power_default surfaceflinger:process setsched;
