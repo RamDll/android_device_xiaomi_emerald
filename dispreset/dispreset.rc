@@ -1,13 +1,15 @@
-# Power-cycle the panel once, before the composer takes over the display that LK left on.
-# Persistent properties (the persist.log.tag.emerald_no_dispreset switch) are loaded by then,
-# and surfaceflinger only starts on boot.
+# Power-cycle the panel once, before anyone else opens /dev/dri and becomes DRM master.
+# post-fs-data: persistent properties (the persist.log.tag.emerald_no_dispreset switch) are loaded
+# by init.rc's post-fs-data action, which runs first; zygote-start (class main, where the MTK PQ
+# service opens the DRM device) comes after. load_persist_props_action was too late: it is queued
+# behind zygote-start, and r27 got master=0 / EACCES.
 service vendor.dispreset /vendor/bin/dispreset
     user system
     group graphics
     oneshot
     disabled
 
-on load_persist_props_action
+on post-fs-data
     exec_start vendor.dispreset
 
 # The shell can't read vendor properties; debug.* it can.
