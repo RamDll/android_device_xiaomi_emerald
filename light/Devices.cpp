@@ -17,6 +17,7 @@ namespace light {
 
 namespace {
 
+#ifdef SCAN_FOR_BACKLIGHT_DEVICES
 std::vector<std::string> getSubDirs(const std::string& path) {
     std::vector<std::string> subdirs;
     std::filesystem::path p(path);
@@ -31,6 +32,7 @@ std::vector<std::string> getSubDirs(const std::string& path) {
 
     return subdirs;
 }
+#endif
 
 }  // namespace
 
