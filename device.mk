@@ -350,7 +350,8 @@ PRODUCT_PACKAGES += \
 
 # ConsumerIR
 PRODUCT_PACKAGES += \
-    android.hardware.ir-service.example
+    android.hardware.ir-service.example \
+    XMRemoteController
 
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.consumerir.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.consumerir.xml
