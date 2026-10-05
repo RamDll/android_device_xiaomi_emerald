@@ -147,6 +147,7 @@ ro.vendor.mtk_log_hide_gps=1
 debug.cpurend.vsync=false
 debug.hwui.target_cpu_time_percent=30
 debug.hwui.use_hint_manager=true
+debug.sf.enable_adpf_cpu_hint=true
 
 # LMKD
 ro.lmk.kill_heaviest_task=true
