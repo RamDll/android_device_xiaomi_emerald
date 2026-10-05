@@ -737,9 +737,9 @@ on early-init
     write /proc/sys/kernel/printk "4 4 1 7"
     chmod 000 /sys/class/power_supply/battery/first_usage_date
 
-# SurfaceFlinger's RenderEngine runs on GLES (vendor.prop); persist.log.tag.* is the only persistent
-# property the shell may set on a user build, so it carries the switch to Vulkan. A plain property
+# SurfaceFlinger's RenderEngine runs on Vulkan (vendor.prop); persist.log.tag.* is the only persistent
+# property the shell may set on a user build, so it carries the switch back to GLES. A plain property
 # trigger fires too late (after surfaceflinger already read the backend), so check it on early-boot:
 # persistent properties are loaded by then and surfaceflinger only starts on boot.
-on early-boot && property:persist.log.tag.emerald_sf_vulkan=1
-    setprop debug.renderengine.backend skiavkthreaded
+on early-boot && property:persist.log.tag.emerald_sf_gles=1
+    setprop debug.renderengine.backend skiaglthreaded

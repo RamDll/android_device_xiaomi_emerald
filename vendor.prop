@@ -299,9 +299,9 @@ ro.surface_flinger.has_HDR_display=true
 ro.surface_flinger.protected_contents=true
 ro.surface_flinger.supports_background_blur=1
 ro.surface_flinger.use_color_management=true
-# RenderEngine on GLES (as before r26). Vulkan (Mali r38p1) without a rebuild, for comparisons:
-#   adb shell setprop persist.log.tag.emerald_sf_vulkan 1 && adb reboot
-debug.renderengine.backend=skiaglthreaded
+# RenderEngine on Vulkan (Mali r38p1). Back to GLES without a rebuild:
+#   adb shell setprop persist.log.tag.emerald_sf_gles 1 && adb reboot
+debug.renderengine.backend=skiavkthreaded
 # Refresh rate policy: no per-content switching. Every DSI mode switch risks the panel raising its
 # ERR_FG line, which the MTK ESD check answers with a panel reset (screen blink, brightness at max);
 # with stock's 600 ms timers 60-120 still switched ~20 times a minute. Use the longer timers of the
