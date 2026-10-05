@@ -1,0 +1,37 @@
+//
+// SPDX-FileCopyrightText: The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+cc_binary {
+    name: "android.hardware.light-service.emerald",
+    defaults: ["hidl_defaults"],
+    vendor: true,
+    relative_install_path: "hw",
+    init_rc: ["android.hardware.light-service.emerald.rc"],
+    vintf_fragments: ["android.hardware.light-service.emerald.xml"],
+    cflags: select(soong_config_variable("lineagelight", "scan_for_backlight_devices"), {
+        true: ["-DSCAN_FOR_BACKLIGHT_DEVICES"],
+        default: [],
+    }) + select(soong_config_variable("lineagelight", "snap_rgb_to_pure"), {
+        true: ["-DSNAP_RGB_TO_PURE"],
+        default: [],
+    }),
+    srcs: [
+        "devices/BacklightDevice.cpp",
+        "devices/LedDevice.cpp",
+        "devices/RgbLedDevice.cpp",
+        "models/Color.cpp",
+        "models/State.cpp",
+        "Devices.cpp",
+        "Lights.cpp",
+        "Utils.cpp",
+        "service.cpp",
+    ],
+    local_include_dirs: ["."],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "android.hardware.light-V2-ndk",
+    ],
+}
