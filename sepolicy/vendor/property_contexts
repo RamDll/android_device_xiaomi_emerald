@@ -29,6 +29,3 @@ ro.vendor.sensors.xiaomi.		 u:object_r:vendor_sensors_prop:s0
 
 # Thermal
 vendor.sys.thermal.data.path             u:object_r:vendor_thermal_prop:s0
-
-# Display power-cycle at boot (result, for debugging)
-vendor.dispreset.       u:object_r:vendor_dispreset_prop:s0

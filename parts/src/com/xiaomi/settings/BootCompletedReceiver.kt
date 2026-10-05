@@ -40,7 +40,8 @@ class BootCompletedReceiver : BroadcastReceiver() {
         // LK hands the panel over with its own DSI timing (8.54 ms instead of 8.41 ms per frame at
         // 120 Hz, 60 Hz video judders) until the first real screen off/on. Do that once at boot.
         // A DRM modeset before the composer starts fixed the timing but left the boot screen black.
-        private const val NO_PANEL_RESET_PROP = "persist.log.tag.emerald_no_dispreset"
+        // Switch it off with: adb shell setprop persist.log.tag.emerald_no_panel_reset 1
+        private const val NO_PANEL_RESET_PROP = "persist.log.tag.emerald_no_panel_reset"
         private const val PANEL_OFF_MS = 1000L
     }
 

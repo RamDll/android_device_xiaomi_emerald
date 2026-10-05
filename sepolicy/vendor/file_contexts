@@ -109,5 +109,4 @@
 
 # Process and system statistics files
 /proc/stat                                                                                                                                                u:object_r:proc_stat:s0
-/(vendor|system/vendor)/bin/dispreset u:object_r:vendor_dispreset_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.light-service\.emerald   u:object_r:hal_light_default_exec:s0
