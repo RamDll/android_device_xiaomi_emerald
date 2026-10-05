@@ -27,3 +27,11 @@ allow hal_power_default input_device:chr_file rw_file_perms;
 allow hal_power_default vendor_displayfeature_device:chr_file rw_file_perms;
 allow hal_power_default sysfs_leds:dir search;
 allow hal_power_default sysfs_leds:file rw_file_perms;
+
+# ADPF: set uclamp/scheduling on the threads of hint session owners (as on Pixel)
+allow hal_power_default self:capability sys_nice;
+allow hal_power_default appdomain:process { getsched setsched };
+allow hal_power_default surfaceflinger:process setsched;
+allow hal_power_default hal_graphics_composer_default:process setsched;
+allow hal_power_default system_server:process setsched;
+allow hal_power_default proc_stat:file r_file_perms;
