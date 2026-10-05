@@ -565,12 +565,7 @@
       "SamplingWindow_D": 1,
       "ReportingRateLimitNs": 125000000,
       "TargetTimeFactor": 1.0,
-      "StaleTimeFactor": 10.0,
-      "HeuristicBoost_On": true,
-      "HBoostOffMaxAvgDurRatio": 4.5,
-      "JankCheckTimeFactor": 1.0,
-      "LowFrameRateThreshold": 20,
-      "MaxRecordsNum": 300
+      "StaleTimeFactor": 10.0
     }
   ]
 }
