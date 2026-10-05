@@ -5,6 +5,8 @@ VENDOR_LOG_LEVEL=S
 endif
 
 PRODUCT_VENDOR_PROPERTIES += \
+    persist.log.tag.MDP=$(VENDOR_LOG_LEVEL) \
+    persist.log.tag.TRS=$(VENDOR_LOG_LEVEL) \
     persist.log.tag.RILMUXD=$(VENDOR_LOG_LEVEL) \
     persist.log.tag.RfxMclDisThread=$(VENDOR_LOG_LEVEL) \
     persist.log.tag.RfxCloneMgr=$(VENDOR_LOG_LEVEL) \
