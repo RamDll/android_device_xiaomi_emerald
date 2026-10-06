@@ -7,7 +7,6 @@ ro.odm.build.fingerprint=Redmi/emerald_eea/emerald:15/AP3A.240905.015.A2/OS2.0.2
 ro.product.odm.brand=Redmi
 ro.product.odm.device=emerald
 ro.product.odm.model=23117RA68G
-ro.product.odm.cert=23117RA68G
 ro.product.odm.name=emerald_eea
 ro.product.odm.marketname=Redmi Note 13 Pro
 ro.product.marketname=Redmi Note 13 Pro

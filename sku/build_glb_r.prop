@@ -7,7 +7,6 @@ ro.odm.build.fingerprint=Redmi/emerald_r_eea/emerald:15/AP3A.240905.015.A2/OS2.0
 ro.product.odm.brand=Redmi
 ro.product.odm.device=emerald
 ro.product.odm.model=2502FRA65G
-ro.product.odm.cert=2502FRA65G
 ro.product.odm.name=emerald_r_eea
 ro.product.odm.marketname=Redmi Note 14S
 ro.product.marketname=Redmi Note 14S

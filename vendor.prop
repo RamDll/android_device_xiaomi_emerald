@@ -4,8 +4,6 @@ ro.vendor.mtk_aal_support=1
 # Audio
 aaudio.mmap_exclusive_policy=2
 aaudio.mmap_policy=2
-persist.audio.button_jack.profile=volume
-persist.audio.button_jack.switch=0
 persist.vendor.audio.misound.disable=true
 ro.audio.monitorRotation=true
 ro.vendor.audio.bluetooth.support.misound=false
@@ -36,7 +34,6 @@ ro.config.vc_call_vol_default=4
 ro.config.vc_call_vol_steps=11
 
 # Bluetooth
-bluetooth.device_id.vendor_id=0x0046
 persist.bluetooth.a2dp_offload.cap=sbc-aac
 persist.bluetooth.a2dp_offload.disabled=true
 ro.bluetooth.a2dp_offload.supported=true
@@ -61,7 +58,6 @@ persist.vendor.camera3.pipeline.bufnum.min.low_ram.imgo=6
 persist.vendor.camera3.pipeline.bufnum.min.low_ram.lcso=6
 persist.vendor.camera3.pipeline.bufnum.min.low_ram.rrzo=6
 persist.vendor.camera3.pipeline.bufnum.min.low_ram.rsso=6
-ro.product.mod_device=emerald_eea
 ro.vendor.camera3.zsl.default=260
 ro.vendor.camera.directfdyuv.support=1
 ro.vendor.camera.isp.support.colorspace=0
@@ -237,10 +233,8 @@ persist.vendor.radio.mtk_ps3_rat=G
 persist.vendor.radio.smart.data.switch=1
 persist.vendor.viwifi_support=1
 persist.vendor.xfrm_support=1
-ro.mtk_key_manager_support=1
 ro.telephony.default_network=9,9,9,9
 ro.telephony.iwlan_operation_mode=AP-assisted
-ro.telephony.sim.count=2
 ro.vendor.md_auto_setup_ims=1
 ro.vendor.md_prop_ver=1
 ro.vendor.mtk_c2k_lte_mode=0
