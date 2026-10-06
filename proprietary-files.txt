@@ -1,4 +1,4 @@
-# All blobs are from OS2.0.211.0.VNFEUXM unless noted or pinned
+# All blobs are from OS2.0.208.0.VNFIDXM unless noted or pinned
 
 # AAL
 vendor/lib64/libaal_cust.so
@@ -178,7 +178,6 @@ vendor/lib64/libbluetooth_mtk_pure.so
 vendor/lib64/libbt-vendor.so
 
 # Camera
-odm/etc/camera/camerabooster.json
 vendor/bin/hw/mt6789/camerahalserver
 vendor/etc/init/camerahalserver.rc
 vendor/lib64/com.xiaomi.plugin.capbokeh.so
