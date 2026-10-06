@@ -1,0 +1,3 @@
+# panel_info (mi_display) - which panel variant is fitted
+allow mtk_hal_pq vendor_displayfeature_sysfs:dir search;
+allow mtk_hal_pq vendor_displayfeature_sysfs:file r_file_perms;
