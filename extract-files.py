@@ -14,10 +14,6 @@ from extract_utils.fixups_lib import (
     libs_proto_3_9_1,
     libs_proto_21_12,
 )
-from extract_utils.fixups_lib import (
-    lib_fixups,
-    lib_fixups_user_type,
-)
 from extract_utils.main import (
     ExtractUtils,
     ExtractUtilsModule,
@@ -32,7 +28,7 @@ namespace_imports = [
 ]
 
 
-lib_fixups: lib_fixups_user_type = {
+lib_fixups_base: lib_fixups_user_type = {
     libs_clang_rt_ubsan: lib_fixup_remove_arch_suffix,
     libs_proto_3_9_1: lib_fixup_vendorcompat,
     libs_proto_21_12: lib_fixup_remove_proto_version_suffix,
@@ -53,7 +49,7 @@ def lib_fixup_vendor_suffix(lib: str, partition: str, *args, **kwargs):
 
 
 lib_fixups: lib_fixups_user_type = {
-    **lib_fixups,
+    **lib_fixups_base,
     ('vendor.mediatek.hardware.videotelephony@1.0',): lib_fixup_vendor_suffix,
 }
 
@@ -80,8 +76,6 @@ blob_fixups: blob_fixups_user_type = {
         "mt6789/android.hardware.graphics.allocator@4.0-service-mediatek.mt6789",
     ),
     (
-        "vendor/lib/libwvhidl.so",
-        "vendor/lib/mediadrm/libwvdrmengine.so",
         "vendor/lib64/libwvhidl.so",
         "vendor/lib64/mediadrm/libwvdrmengine.so",
     ): blob_fixup()
@@ -89,7 +83,6 @@ blob_fixups: blob_fixups_user_type = {
     .replace_needed("libprotobuf-cpp-lite-3.9.1.so", "libprotobuf-cpp-full-3.9.1.so"),
     (
         "vendor/bin/mnld",
-        "vendor/lib64/hw/android.hardware.sensors@2.X-subhal-mediatek.so",
         "vendor/lib64/mt6789/libaalservice.so",
     ): blob_fixup()
     .patchelf_version(patchelf_version)
@@ -171,14 +164,10 @@ blob_fixups: blob_fixups_user_type = {
     .replace_needed("libsfplugin_ccodec_utils.so", "libsfplugin_ccodec_utils-v31.so")
     .replace_needed("libstagefright_foundation.so", "libstagefright_foundation-v33.so")
     .replace_needed("libui.so", "libui-v34.so"),
-    "vendor/etc/init/android.hardware.bluetooth@1.1-service-mediatek.rc": blob_fixup().regex_replace(
-        "on property:vts(.|\n)*", ""
-    ),
     "vendor/etc/init/android.hardware.neuralnetworks-shim-service-mtk.rc": blob_fixup().regex_replace(
         "start", "enable"
     ),
     (
-        "vendor/lib64/libteei_daemon_vfs.so",
         "vendor/lib64/mt6789/lib3a.flash.so",
         "vendor/lib64/mt6789/libaaa_ltm.so",
         "vendor/lib64/mt6789/lib3a.ae.stat.so",
