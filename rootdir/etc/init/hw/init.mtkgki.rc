@@ -19,48 +19,10 @@ on property:vendor.connsys.driver.ready=yes
     insmod /vendor/lib/modules/${ro.vendor.wlan.chrdev}.ko
     insmod /vendor/lib/modules/wlan_drv_${ro.vendor.wlan.gen}.ko
     start wlan_assistant
-    trigger emerald-wlan-loglevel
-
-# The gen4m driver logs INFO for every module (0x2f) - link quality / perf monitor lines every
-# second fill the kernel ring buffer and push the boot log out. Keep EVENT|STATE|WARN|ERROR (0x0f)
-# for all 32 modules (format "0x<module>:0x<level>"). Re-applied whenever Wi-Fi comes up in case
-# the driver resets it.
-on emerald-wlan-loglevel
-    write /proc/net/wlan/dbgLevel 0x00:0x0f
-    write /proc/net/wlan/dbgLevel 0x01:0x0f
-    write /proc/net/wlan/dbgLevel 0x02:0x0f
-    write /proc/net/wlan/dbgLevel 0x03:0x0f
-    write /proc/net/wlan/dbgLevel 0x04:0x0f
-    write /proc/net/wlan/dbgLevel 0x05:0x0f
-    write /proc/net/wlan/dbgLevel 0x06:0x0f
-    write /proc/net/wlan/dbgLevel 0x07:0x0f
-    write /proc/net/wlan/dbgLevel 0x08:0x0f
-    write /proc/net/wlan/dbgLevel 0x09:0x0f
-    write /proc/net/wlan/dbgLevel 0x0a:0x0f
-    write /proc/net/wlan/dbgLevel 0x0b:0x0f
-    write /proc/net/wlan/dbgLevel 0x0c:0x0f
-    write /proc/net/wlan/dbgLevel 0x0d:0x0f
-    write /proc/net/wlan/dbgLevel 0x0e:0x0f
-    write /proc/net/wlan/dbgLevel 0x0f:0x0f
-    write /proc/net/wlan/dbgLevel 0x10:0x0f
-    write /proc/net/wlan/dbgLevel 0x11:0x0f
-    write /proc/net/wlan/dbgLevel 0x12:0x0f
-    write /proc/net/wlan/dbgLevel 0x13:0x0f
-    write /proc/net/wlan/dbgLevel 0x14:0x0f
-    write /proc/net/wlan/dbgLevel 0x15:0x0f
-    write /proc/net/wlan/dbgLevel 0x16:0x0f
-    write /proc/net/wlan/dbgLevel 0x17:0x0f
-    write /proc/net/wlan/dbgLevel 0x18:0x0f
-    write /proc/net/wlan/dbgLevel 0x19:0x0f
-    write /proc/net/wlan/dbgLevel 0x1a:0x0f
-    write /proc/net/wlan/dbgLevel 0x1b:0x0f
-    write /proc/net/wlan/dbgLevel 0x1c:0x0f
-    write /proc/net/wlan/dbgLevel 0x1d:0x0f
-    write /proc/net/wlan/dbgLevel 0x1e:0x0f
-    write /proc/net/wlan/dbgLevel 0x1f:0x0f
-
-on property:init.svc.wpa_supplicant=running
-    trigger emerald-wlan-loglevel
+    # gen4m runs every module at 0x2f (INFO|EVENT|STATE|WARN|ERROR); its link quality / perf
+    # monitor INFO lines push the boot log out of the kernel ring buffer. Module index 0xff sets
+    # all modules; Wi-Fi off/on doesn't reset the levels.
+    write /proc/net/wlan/dbgLevel 0xff:0x0f
 
 # load bt_drv
 on property:vendor.connsys.driver.ready=yes
