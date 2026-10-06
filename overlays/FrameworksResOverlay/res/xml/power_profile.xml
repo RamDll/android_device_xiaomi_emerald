@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <device name="Android">
     <item name="battery.capacity">5000</item>
-    <item name="ambient.on">0.1</item>
+    <item name="ambient.on">12</item>
     <item name="screen.on">120.61</item>
     <item name="screen.full">1278.43</item>
     <item name="bluetooth.active">12.6</item>
@@ -20,12 +20,14 @@
         <value>1.19</value>
     </array>
     <array name="cpu.active">
-        <value>0.1</value>
+        <value>18</value>
     </array>
     <array name="cpu.clusters.cores">
         <value>6</value>
         <value>2</value>
     </array>
+    <item name="cpu.cluster_power.cluster0">5</item>
+    <item name="cpu.cluster_power.cluster1">10</item>
     <array name="cpu.core_speeds.cluster0">
         <value>2000000</value>
         <value>1900000</value>
