@@ -1422,14 +1422,16 @@ vendor/etc/dsi_n6_41_02_0b_dsc_vdo_mi.xml
 vendor/etc/dsi_n6_42_0d_0a_dsc_vdo_mi.xml
 vendor/etc/screen_light.xml
 
-# Display (Mali)
+# Display (Mali) - arm.graphics AIDL types, NEEDED by graphics.mapper@4.0-impl-mediatek (not only by Mali)
 vendor/lib64/mt6789/arm.graphics-V1-ndk_platform.so
 
-# Display (Mali) - from XT2513-1_KANSAS_OPENLA_15_V1VK35.22-125_subsidy-DEFAULT_regulatory-DEFAULT_cid50_CFC
-vendor/lib64/egl/mt6835/libGLES_mali.so:vendor/lib64/egl/mt6789/libGLES_mali.so|0d7ee65504a0bedc798b900cbb96f41b6b88b038
-vendor/lib64/hw/mt6835/vulkan.mali.so:vendor/lib64/hw/mt6789/vulkan.mali.so|a85b914d28400ecf0e9532840e57e844cc13739a
-
-# Display (Mali) - from Nothing Phone (2a) (Pacman-B4.0-260225-1817).
+# Display (Mali) - r38p1-01eac0 userspace (Vulkan 1.3). NOT in stock OS2.0.208 (stock: r32p1-00bet0,
+# libGLES_mali.so sha1 7004416b0d56c55009ab1b87c6e4881050be602f). Pinned to the copy in
+# /mnt/hdd/emerald-backups/mali/r38p1-lunaris312 (scripts/mali_blobs.sh): extract-utils keeps a matching
+# copy already present in vendor/xiaomi/emerald and otherwise falls back to the stock r32p1 file.
+# Runs on the stock r32p1 kbase (UK 11.31).
+vendor/lib64/egl/mt6789/libGLES_mali.so|0d7ee65504a0bedc798b900cbb96f41b6b88b038
+vendor/lib64/hw/mt6789/vulkan.mali.so|a85b914d28400ecf0e9532840e57e844cc13739a
 
 # DRM (Digital Rights Management)
 vendor/bin/hw/android.hardware.drm@1.4-service.widevine
