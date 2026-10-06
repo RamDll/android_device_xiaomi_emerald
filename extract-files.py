@@ -226,6 +226,14 @@ blob_fixups: blob_fixups_user_type = {
         .replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so'),
     'vendor/lib64/librt_extamp_intf.so': blob_fixup()
         .replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so'),
+    # power-libperfmgr (Pixel logic) puts ADPF session threads into SCHED_QOS_* task profiles that only
+    # exist on Pixel kernels; without them every session logs "Failed to find SCHED_QOS_* task profile".
+    # Define them as no-ops: same behaviour as now, no log spam.
+    'vendor/etc/task_profiles.json': blob_fixup()
+        .regex_replace('\n  "Profiles": \\[\n', '\n  "Profiles": [\n'
+            '    { "Name": "SCHED_QOS_SENSITIVE_EXTREME", "Actions": [] },\n'
+            '    { "Name": "SCHED_QOS_SENSITIVE_STANDARD", "Actions": [] },\n'
+            '    { "Name": "SCHED_QOS_NONE", "Actions": [] },\n'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(
