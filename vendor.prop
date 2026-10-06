@@ -238,13 +238,13 @@ persist.vendor.radio.smart.data.switch=1
 persist.vendor.viwifi_support=1
 persist.vendor.xfrm_support=1
 ro.mtk_key_manager_support=1
-ro.telephony.default_network=10,10,10,10
+ro.telephony.default_network=9,9,9,9
 ro.telephony.iwlan_operation_mode=AP-assisted
 ro.telephony.sim.count=2
 ro.vendor.md_auto_setup_ims=1
 ro.vendor.md_prop_ver=1
-ro.vendor.mtk_c2k_lte_mode=2
-ro.vendor.mtk_c2k_support=1
+ro.vendor.mtk_c2k_lte_mode=0
+ro.vendor.mtk_c2k_support=0
 ro.vendor.mtk_data_config=1
 ro.vendor.mtk_eccci_c2k=1
 ro.vendor.mtk_external_sim_only_slots=0
@@ -270,7 +270,6 @@ ro.vendor.sim_me_lock_mode=3
 ro.vendor.wfd.dummy.enable=0
 ro.vendor.wfd.iframesize.level=0
 telephony.active_modems.max_count=2
-telephony.lteOnCdmaDevice=1
 
 # Sensor
 ro.vendor.mtk.sensor.support=yes
