@@ -1,1 +1,10 @@
 dontaudit untrusted_app ashmem_device:chr_file open;
+
+# Known-benign denials that vendor policy may not allow (they'd violate neverallows); hide them, grant nothing.
+# libmtk-ril reads ro.product.mod_device (unset; only used for the IMS user agent, VoLTE works).
+dontaudit rild default_prop:file read;
+# The platform NFC stack peeks into /data/vendor/nfc; NFC (payments too) works without it.
+dontaudit nfc nfc_data_vendor_file:dir search;
+# The stock camera HAL tries to set ro.boot.camera.config (init-only) and persist.camera.* (not a vendor namespace).
+dontaudit mtk_hal_camera default_prop:property_service set;
+dontaudit mtk_hal_camera bootloader_prop:property_service set;
