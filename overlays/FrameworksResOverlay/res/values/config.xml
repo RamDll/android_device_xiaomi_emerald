@@ -561,4 +561,9 @@
 
     <!-- Enable Zram writeback feature to allow unused pages in zram be written to flash. -->
     <bool name="config_zramWriteback">false</bool>
+
+    <!-- Package granted the "configurator" permissions (WRITE_DEVICE_CONFIG,
+         WRITE_ALLOWLISTED_DEVICE_CONFIG) so GMS can sync server-side DeviceConfig flags, as on
+         certified devices. Empty in AOSP and not set by MindTheGapps. -->
+    <string name="config_deviceConfiguratorPackageName" translatable="false">com.google.android.gms</string>
 </resources>
