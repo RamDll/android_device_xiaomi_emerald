@@ -150,6 +150,20 @@ blob_fixups: blob_fixups_user_type = {
     # (b.ne -> nop at 0x9e224), which is what the secure encoder uses on every good boot.
     # Same code (and byte pattern) in the decoder library, b.ne -> nop at 0x9a7e0: there the secure
     # decoders crash-loop the HAL the same way.
+    # Main camera (OV64B40_SUNNY_MAIN) static metadata: the full-sensor 4624x3472 (and 4624x2608, 4624x2080,
+    # 3472x3472) JPEG/YUV/PRIV outputs claim a 66.67 ms (15 fps) minimum frame duration. Camera2 lists sizes
+    # slower than 20 fps only as "high resolution" outputs, outside the guaranteed stream combinations, so
+    # CameraX (Aperture) falls back to 3264x2448 (8 MP) photos. RAW at 4624x3472 is declared at 33.3 ms, so
+    # the sensor mode itself is fast enough; declare 50 ms (20 fps) instead. The value is loaded once into
+    # w26 for every 66.67 ms entry of constructCustStaticMetadata_..._OV64B40_SUNNY_MAIN_MIPI_RAW (0x8d6e0):
+    # mov w26, #0x40aa; movk w26, #0x3f9, lsl #16 -> mov w26, #0xf080; movk w26, #0x2fa, lsl #16.
+    # The leading bl (relative to its own address) makes the pattern unique; its first byte 0x29 is ")" and
+    # has to be escaped in the regex.
+    "vendor/lib64/mt6789/libmtkcam_metastore.so": blob_fixup()
+    .binary_regex_replace(
+        b"\\)\xca\x01\x94\x5a\x15\x88\x52\x3a\x7f\xa0\x72",  # \x29 = ")" escaped
+        b"\x29\xca\x01\x94\x1a\x10\x9e\x52\x5a\x5f\xa0\x72",
+    ),
     (
         "vendor/lib64/libcodec2_mtk_vdec.so",
         "vendor/lib64/libcodec2_mtk_venc.so",
