@@ -1,0 +1,5 @@
+# sha256 of the stock OS3.0.305.0.WNFMIXM super partitions (slot a, from lpunpack of images/super.img)
+6d571043a9a64626208b2f6117363b0d87d453a12b2d6c3ca4e0179c52d1c1f9  odm_dlkm.img
+b7e22b06faab06db5b0f56a22f6f6a1e21a1c4a2171e22faa66f44f4e5e592a3  system_dlkm.img
+a5eb7d441290c330d1cffc5f015987a76c3f7aa7bfefaf84f46ab4aa38cd3e03  vendor.img
+370fd635950444aa36cc0876ea4e26eaf0733e333c7f528d7c22a8bbdbd9c9a2  vendor_dlkm.img
