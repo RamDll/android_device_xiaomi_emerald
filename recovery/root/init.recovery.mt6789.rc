@@ -1,0 +1,8 @@
+# USB setup from the stock 305 recovery ramdisk (init.recovery.mt6789.rc). Not taken from it:
+# "start adbd" on non-debuggable builds and mtk_plpath_utils (not in our ramdisk; LineageOS
+# create_pl_dev.recovery creates the preloader links instead).
+
+on init
+    setprop sys.usb.configfs 1
+    setprop sys.usb.controller "musb-hdrc"
+    setprop sys.usb.ffs.aio_compat 0
