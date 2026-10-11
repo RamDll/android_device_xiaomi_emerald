@@ -72,10 +72,8 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/permissions/privapp-permissions-com.mediatek.ims.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-com.mediatek.ims.xml \
     $(LOCAL_PATH)/configs/permissions/privapp-permissions-com.mediatek.telephony.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-com.mediatek.telephony.xml
 
-# Libraries the stock system_ext blobs link against, built from source (stock ships both):
-# libhidltransport (VT libs), android.hardware.audio.core-V3-ndk (audio parameter parser)
+# Library the stock VT blobs link against, built from source (stock ships it too)
 PRODUCT_PACKAGES += \
-    android.hardware.audio.core-V3-ndk \
     libhidltransport
 
 # Platform

@@ -1,10 +1,9 @@
 # System-side MediaTek blobs from stock OS3.0.305.0.WNFMIXM system_ext (vendor-side files are not
 # listed: vendor, vendor_dlkm, odm_dlkm and system_dlkm ship as the stock images).
 # Selection and the libsink rename as LineageOS motorola/mt6768-common and xelex/Q25.
-
-# Audio
-system_ext/bin/hw/android.hardware.audio.parameter_parser.service
-system_ext/etc/init/android.hardware.audio.parameter_parser.service.rc
+# Not taken: the stock audio parameter parser (system_ext/bin/hw/android.hardware.audio.parameter_parser.service).
+# It links android.hardware.audio.core-V3 while LineageOS 23.2 is on V4, and audioserver only uses it when
+# ro.audio.ihaladaptervendorextension_enabled=true, which stock sets in system/build.prop (not ours).
 
 # IMS
 system_ext/bin/vtservice
