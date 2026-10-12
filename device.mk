@@ -33,6 +33,10 @@ AB_OTA_POSTINSTALL_CONFIG += \
 PRODUCT_PACKAGES += \
     otapreopt_script
 
+# Dynamic partitions (stock super; as LineageOS daylight/jagar)
+PRODUCT_USE_DYNAMIC_PARTITIONS := true
+PRODUCT_BUILD_SUPER_PARTITION := true
+
 # API levels (stock: ro.product.first_api_level=33)
 PRODUCT_SHIPPING_API_LEVEL := 33
 
