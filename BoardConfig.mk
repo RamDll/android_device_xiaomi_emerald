@@ -141,10 +141,11 @@ TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/etc/fstab.mt6789
 TARGET_RECOVERY_PIXEL_FORMAT := BGRA_8888
 TARGET_USERIMAGES_USE_F2FS := true
 
-# SELinux: the vendor policy is the stock one inside vendor.img. Only the system_ext part of
-# LineageOS' MediaTek policy is used (system-side MediaTek types, e.g. create_pl_dev).
-SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += device/mediatek/sepolicy_vndr/base/private
-SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += device/mediatek/sepolicy_vndr/base/public
+# SELinux: LineageOS' MediaTek policy, included whole as daylight/jagar and xelex/Q25 do.
+# On the phone the vendor policy is the stock one inside vendor.img; the vendor part built here
+# only goes into recovery and the build's own checks (system_ext file_contexts label
+# /data/log_wifi_temp with logtemp_data_file, which only base/vendor defines; stock vendor defines it too).
+include device/mediatek/sepolicy_vndr/SEPolicy.mk
 
 # Security patch level (stock vendor)
 VENDOR_SECURITY_PATCH := 2026-06-05
