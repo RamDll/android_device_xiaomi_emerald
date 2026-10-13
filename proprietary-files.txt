@@ -6,6 +6,11 @@
 # ro.audio.ihaladaptervendorextension_enabled=true, which stock sets in system/build.prop (not ours).
 
 # IMS
+# Not taken: system_ext/priv-app/MtkTelephonyAssist (HyperOS build: DataStateController calls
+# android.telephony.TelephonyBaseUtilsStub, a HyperOS framework class -> com.android.phone crash loop on 2026-10-13).
+# mediatek-res declares the MediaTek protected broadcasts (com.mediatek.common.carrierexpress.* ...); without it
+# Android 16 kills com.mediatek.ims: WfcHandler registers a receiver without RECEIVER_EXPORTED (2026-10-13).
+system_ext/app/mediatek-res/mediatek-res.apk
 system_ext/bin/vtservice
 system_ext/etc/init/init.vtservice.rc
 system_ext/etc/sysconfig/com.mediatek.ims.config.xml
@@ -34,4 +39,3 @@ system_ext/lib64/vendor.mediatek.hardware.videotelephony-V1-ndk.so
 system_ext/lib64/vendor.mediatek.hardware.videotelephony@1.0.so
 system_ext/priv-app/ImsService/ImsService.apk
 system_ext/priv-app/MtkGbaService/MtkGbaService.apk
-system_ext/priv-app/MtkTelephonyAssist/MtkTelephonyAssist.apk
