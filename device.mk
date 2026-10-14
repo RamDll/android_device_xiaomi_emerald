@@ -80,6 +80,40 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libhidltransport
 
+# MediaTek telephony overlays that hardware/mediatek builds for vendor, copied to product (see
+# overlays/*Product/Android.bp): MMTEL ImsService package, device VoLTE/VT/WFC availability.
+PRODUCT_PACKAGES += \
+    MssiFrameworkTelephonyOverlayProduct \
+    MssiTelephonyOverlayProduct
+
+# VoLTE/VT/WFC on carriers whose AOSP carrier config says no (Tele2/Rostelecom 250 20 on the
+# user's SIM, clean-1.1 2026-10-14: no toggle without these; with them VoLTE registered and worked).
+PRODUCT_SYSTEM_PROPERTIES += \
+    persist.dbg.volte_avail_ovr=1 \
+    persist.dbg.vt_avail_ovr=1 \
+    persist.dbg.wfc_avail_ovr=1
+
+# Display
+# libgui (A16 QPR2) deadlocks in BLASTBufferQueue::initialize when maxAcquired + 4 > the frame
+# event history size (default 8). The stock vendor's debug.sf.*duration props give maxAcquired 5
+# at 120 Hz, so the panel stayed on the lk logo (clean-1.0/1.1). 10 fixed it on the phone
+# (2026-10-14, via the debug vendor_boot); see notes.md "Display root cause".
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.lib_gui.frame_event_history_size=10
+
+# SurfaceFlinger RenderEngine on Vulkan, as r30.3 (clean-1.1 jank runs: RenderEngine
+# 29.4 -> 24.6 ms, SystemUI p90 48 -> 25 ms).
+PRODUCT_SYSTEM_PROPERTIES += \
+    debug.renderengine.backend=skiavkthreaded
+
+# Fingerprint (stock HAL): FOD touch mode + scanner state, and the UDFPS icon size / illumination
+# overlays. The /dev/mi_display node for local HBM comes from system/core (local commit 1d21c62:
+# the mi_display rule in rootdir/ueventd.rc; a device copy can't replace that file, init requires it).
+PRODUCT_PACKAGES += \
+    EmeraldUdfps \
+    FrameworksResOverlayEmerald \
+    SystemUIResOverlayEmerald
+
 # Platform
 TARGET_BOARD_PLATFORM := mt6789
 
@@ -90,3 +124,7 @@ PRODUCT_SOONG_NAMESPACES += \
 
 # Inherit the proprietary files
 $(call inherit-product, vendor/xiaomi/emerald/emerald-vendor.mk)
+
+# GApps (MindTheGapps, vendor/gapps in the local manifest; user, 2026-10-14). Required: a build
+# without them must fail instead of quietly shipping no Play services.
+$(call inherit-product, vendor/gapps/arm64/arm64-vendor.mk)

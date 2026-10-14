@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The LineageOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- The stock fingerprint HAL lights the sensor itself (local HBM, see udfps/UdfpsApp.java).
+         With this SystemUI's UdfpsController skips udfpsView.configureDisplay() (its own
+         illumination surface + refresh rate vote) and sends onUiReady at once. On clean-1.1 that
+         surface was created and destroyed on every touch. Same value as the old tree. -->
+    <bool name="config_ignoreUdfpsVote">true</bool>
+</resources>
