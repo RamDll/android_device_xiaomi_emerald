@@ -140,26 +140,49 @@ void setDoubleTapToWake(bool enabled) {
 
 // Panel ESD recovery. When the panel raises its error flag the MTK ESD check resets it
 // (mtk_drm_esd_recover: DSI disable + enable) and the panel driver's lcm_esd_restore_backlight()
-// then writes the maximum level (0x51 0x03FF), not the last one. Nothing tells the framework, so
+// then writes a fixed level (0x51 0x03FF), not the last one. Nothing tells the framework, so
 // the screen stays at full brightness until the next brightness change. On stock Xiaomi's display
 // service handles this. The reset shows up as a DSI power-down followed by a power-on within
 // ~0.5 s, which a real screen off/on doesn't do; then write the current level back.
 constexpr auto kEsdRecoveryWindow = std::chrono::milliseconds(1500);
 // Let lcm_enable (and its backlight restore) finish before writing the level back.
 constexpr auto kRestoreDelay = std::chrono::milliseconds(300);
+// A write to lcd-backlight doesn't reach the panel directly: leds-mtk notifies the MTK AAL service,
+// which applies the latest requested level on its next frame (DISP_IOCTL_AAL_SET_PARAM ->
+// mtk_leds_brightness_set), and leds-mtk drops a level equal to the one it last sent to the panel.
+// The ESD restore wrote 0x3FF behind its back, so it still holds the old level: level - 1 must be
+// applied on its own before level is written back, or both collapse into level and nothing is sent.
+constexpr auto kStepDelay = std::chrono::milliseconds(100);
 
-void restoreBacklight() {
+bool readBacklight(int* level) {
     std::string value;
     if (!::android::base::ReadFileToString(BACKLIGHT_PATH, &value)) {
         PLOG(ERROR) << "Failed to read " << BACKLIGHT_PATH;
+        return false;
+    }
+    *level = atoi(value.c_str());
+    return true;
+}
+
+void restoreBacklight() {
+    int level;
+    if (!readBacklight(&level) || level <= 1) return;
+    LOG(INFO) << "Panel reset by ESD recovery, restoring backlight level " << level;
+    if (!::android::base::WriteStringToFile(std::to_string(level - 1), BACKLIGHT_PATH)) {
+        PLOG(ERROR) << "Failed to write " << BACKLIGHT_PATH;
         return;
     }
-    int level = atoi(value.c_str());
-    if (level <= 1) return;
-    LOG(INFO) << "Panel reset by ESD recovery, restoring backlight level " << level;
-    // The backlight driver skips a write of the level it already has, so step through level - 1.
-    ::android::base::WriteStringToFile(std::to_string(level - 1), BACKLIGHT_PATH);
-    ::android::base::WriteStringToFile(std::to_string(level), BACKLIGHT_PATH);
+    std::this_thread::sleep_for(kStepDelay);
+    // The framework may have set a new level meanwhile; that one reached the panel, keep it.
+    int current;
+    if (!readBacklight(&current)) return;
+    if (current != level - 1) {
+        LOG(INFO) << "Backlight changed to " << current << " during ESD restore, keeping it";
+        return;
+    }
+    if (!::android::base::WriteStringToFile(std::to_string(level), BACKLIGHT_PATH)) {
+        PLOG(ERROR) << "Failed to write " << BACKLIGHT_PATH;
+    }
 }
 
 void watchPanelPower() {
