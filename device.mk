@@ -76,6 +76,14 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libhidltransport
 
+# Display
+# libgui deadlocks in BLASTBufferQueue::initialize when maxAcquired + 4 > the frame event history
+# size (default 8): the stock vendor's debug.sf.*duration props give maxAcquired 5 at 120 Hz, so the
+# panel stayed on the lk logo (clean-1.0/1.1). 10 fixed it on the phone (2026-10-14, via the debug
+# vendor_boot); see notes.md "Display root cause". The same code path is in libgui of 24.0.
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.lib_gui.frame_event_history_size=10
+
 # Platform
 TARGET_BOARD_PLATFORM := mt6789
 
