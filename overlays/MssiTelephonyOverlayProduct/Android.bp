@@ -1,0 +1,13 @@
+//
+// SPDX-FileCopyrightText: The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Copy of hardware/mediatek overlay/MssiTelephonyOverlay (LineageOS hardware/mediatek 68f9be7,
+// identical in lineage-24.0 4a94010), which is vendor: true and so never reaches the phone: we
+// ship the stock vendor.img. Without it clean-1.1 had no MMTEL ImsService and no VoLTE toggle
+// (2026-10-14).
+runtime_resource_overlay {
+    name: "MssiTelephonyOverlayProduct",
+    product_specific: true,
+}

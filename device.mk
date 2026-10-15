@@ -76,6 +76,12 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libhidltransport
 
+# MediaTek telephony overlays that hardware/mediatek builds for vendor, copied to product (see
+# overlays/*Product/Android.bp): MMTEL ImsService package, device VoLTE/VT/WFC availability.
+PRODUCT_PACKAGES += \
+    MssiFrameworkTelephonyOverlayProduct \
+    MssiTelephonyOverlayProduct
+
 # Display
 # libgui deadlocks in BLASTBufferQueue::initialize when maxAcquired + 4 > the frame event history
 # size (default 8): the stock vendor's debug.sf.*duration props give maxAcquired 5 at 120 Hz, so the
