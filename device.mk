@@ -45,10 +45,6 @@ PRODUCT_SHIPPING_API_LEVEL := 33
 PRODUCT_PACKAGES += \
     android.hardware.boot-service.default_recovery
 
-# Fastbootd
-PRODUCT_PACKAGES += \
-    fastbootd
-
 # Preloader partition links for OTA firmware updates (LineageOS hardware/mediatek)
 PRODUCT_PACKAGES += \
     create_pl_dev \
