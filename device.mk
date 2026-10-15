@@ -101,6 +101,12 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.lib_gui.frame_event_history_size=10
 
+# Frame timestamps to MediaTek GED (frameworks/native "libgui: Report frame timestamps to MediaTek
+# GED KPI"): without them the GPU sits at 390-545 MHz in UI animations (clean-1.1 jank runs, 2026-10-14).
+# A debug prop, so it can be switched off with adb for A/B runs.
+PRODUCT_SYSTEM_PROPERTIES += \
+    debug.lib_gui.mtk_ged_kpi=1
+
 # SurfaceFlinger RenderEngine on Vulkan, as r30.3 (clean-1.1 jank runs: RenderEngine
 # 29.4 -> 24.6 ms, SystemUI p90 48 -> 25 ms).
 PRODUCT_SYSTEM_PROPERTIES += \
