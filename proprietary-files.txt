@@ -2,7 +2,7 @@
 # listed: vendor, vendor_dlkm, odm_dlkm and system_dlkm ship as the stock images).
 # Selection and the libsink rename as LineageOS motorola/mt6768-common and xelex/Q25.
 # Not taken: the stock audio parameter parser (system_ext/bin/hw/android.hardware.audio.parameter_parser.service).
-# It links android.hardware.audio.core-V3 while LineageOS 23.2 is on V4, and audioserver only uses it when
+# It links android.hardware.audio.core-V3 while LineageOS 23.2 and 24.0 build V4, and audioserver only uses it when
 # ro.audio.ihaladaptervendorextension_enabled=true, which stock sets in system/build.prop (not ours).
 
 # IMS

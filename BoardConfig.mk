@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: The LineageOS Project
 # SPDX-License-Identifier: Apache-2.0
 #
-# clean-1: LineageOS system on the unmodified stock HyperOS 3 Global OS3.0.305.0.WNFMIXM
+# clean-2: LineageOS 24.0 system on the unmodified stock HyperOS 3 Global OS3.0.305.0.WNFMIXM
 # vendor, vendor_dlkm, odm_dlkm and system_dlkm images. Values marked "stock" were read from
 # the 305 images (boot/vendor_boot headers, super metadata, vendor props).
 #
