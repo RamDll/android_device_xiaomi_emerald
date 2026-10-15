@@ -107,6 +107,17 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     debug.lib_gui.mtk_ged_kpi=1
 
+# Refresh rate selection as the official LineageOS xiaomi_mt6895-common (MediaTek): with the stock
+# vendor's values (content detection off, idle/touch timers 600 ms) AOSP SurfaceFlinger jumps
+# 120 -> 60 -> 120 Hz on every 1 Hz screen update (clock counters, the network traffic indicator),
+# visible as flicker, and can drop to 60 Hz mid-fling (tester + user, 2026-10-15). Product props
+# are loaded after vendor's, so these override the stock vendor values.
+PRODUCT_PRODUCT_PROPERTIES += \
+    ro.surface_flinger.use_content_detection_for_refresh_rate=true \
+    ro.surface_flinger.set_idle_timer_ms=1100 \
+    ro.surface_flinger.set_touch_timer_ms=1100 \
+    ro.surface_flinger.set_display_power_timer_ms=1000
+
 # SurfaceFlinger RenderEngine on Vulkan, as r30.3 (clean-1.1 jank runs: RenderEngine
 # 29.4 -> 24.6 ms, SystemUI p90 48 -> 25 ms).
 PRODUCT_SYSTEM_PROPERTIES += \
