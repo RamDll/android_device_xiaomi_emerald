@@ -107,3 +107,7 @@ PRODUCT_SOONG_NAMESPACES += \
 
 # Inherit the proprietary files
 $(call inherit-product, vendor/xiaomi/emerald/emerald-vendor.mk)
+
+# GApps (MindTheGapps cinnamonbun, vendor/gapps in the local manifest; user, 2026-10-14 and
+# 2026-10-15). Required: a build without them must fail instead of quietly shipping no Play services.
+$(call inherit-product, vendor/gapps/arm64/arm64-vendor.mk)
