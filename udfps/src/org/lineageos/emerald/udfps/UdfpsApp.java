@@ -57,7 +57,16 @@ public class UdfpsApp extends Application {
         HandlerThread thread = new HandlerThread(TAG);
         thread.start();
         mHandler = new Handler(thread.getLooper());
-        mHandler.post(this::setup);
+        mHandler.post(() -> {
+            // A persistent app that crashes on start is restarted at once, and the crash loop ends in
+            // a RescueParty reboot (clean-1.2 bootloop, 2026-10-15). Without this bridge only the
+            // fingerprint stops working, so log and stay idle instead.
+            try {
+                setup();
+            } catch (RuntimeException e) {
+                Log.e(TAG, "setup failed, fingerprint bridge disabled", e);
+            }
+        });
     }
 
     private void setup() {
