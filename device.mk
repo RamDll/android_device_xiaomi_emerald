@@ -106,6 +106,35 @@ PRODUCT_PACKAGES += \
     FrameworksResOverlayEmerald \
     SystemUIResOverlayEmerald
 
+# Bluetooth profiles. The Bluetooth module enables a profile only when its sysprop is true
+# (A2dpService.isEnabled() = isProfileA2dpSourceEnabled().orElse(false)); stock sets these in the
+# HyperOS system + product build.prop, which clean-2 doesn't ship, so only GATT (BLE: the watch),
+# HearingAid and SAP ran and headphones had no A2DP / HFP (clean-1.2.x and 2.0). Stock OS3.0.305.0
+# set; LE Audio profiles off as on stock.
+PRODUCT_PRODUCT_PROPERTIES += \
+    bluetooth.profile.a2dp.source.enabled=true \
+    bluetooth.profile.asha.central.enabled=true \
+    bluetooth.profile.avrcp.target.enabled=true \
+    bluetooth.profile.bas.client.enabled=true \
+    bluetooth.profile.gatt.enabled=true \
+    bluetooth.profile.hfp.ag.enabled=true \
+    bluetooth.profile.hid.device.enabled=true \
+    bluetooth.profile.hid.host.enabled=true \
+    bluetooth.profile.map.server.enabled=true \
+    bluetooth.profile.opp.enabled=true \
+    bluetooth.profile.pan.nap.enabled=true \
+    bluetooth.profile.pan.panu.enabled=true \
+    bluetooth.profile.pbap.server.enabled=true \
+    bluetooth.profile.sap.server.enabled=true \
+    bluetooth.profile.bap.broadcast.assist.enabled=false \
+    bluetooth.profile.bap.broadcast.source.enabled=false \
+    bluetooth.profile.bap.unicast.client.enabled=false \
+    bluetooth.profile.ccp.server.enabled=false \
+    bluetooth.profile.csip.set_coordinator.enabled=false \
+    bluetooth.profile.hap.client.enabled=false \
+    bluetooth.profile.mcp.server.enabled=false \
+    bluetooth.profile.vcp.controller.enabled=false
+
 # Platform
 TARGET_BOARD_PLATFORM := mt6789
 
