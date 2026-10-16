@@ -97,6 +97,15 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.lib_gui.frame_event_history_size=10
 
+# Fingerprint (stock HAL): FOD touch mode + scanner state, and the UDFPS icon size / illumination
+# overlays. The /dev/mi_display node for local HBM comes from system/core (clean-2 branch: the
+# mi_display rule in rootdir/ueventd.rc; init reads only /system/etc/ueventd.rc). Same as clean-1.2.1,
+# tested on clean-2.0 through an adb overlay (2026-10-16): enroll + unlock work.
+PRODUCT_PACKAGES += \
+    EmeraldUdfps \
+    FrameworksResOverlayEmerald \
+    SystemUIResOverlayEmerald
+
 # Platform
 TARGET_BOARD_PLATFORM := mt6789
 

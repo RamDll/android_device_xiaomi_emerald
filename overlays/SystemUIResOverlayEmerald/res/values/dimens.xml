@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The LineageOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Microns per pixel. Without it SystemUI uses -1: the UDFPS icon size becomes negative
+         (6000 / -1) and the lock screen showed a half-drawn icon background at the sensor
+         (clean-1.1, 2026-10-14: DeviceEntryIcon padding=3093). Value as the old tree. -->
+    <item format="float" name="pixel_pitch" type="dimen">60.61</item>
+
+    <!-- Keep the lock screen indication between the low UDFPS icon and the bottom edge (old tree) -->
+    <dimen name="keyguard_indication_margin_bottom">14dp</dimen>
+</resources>
