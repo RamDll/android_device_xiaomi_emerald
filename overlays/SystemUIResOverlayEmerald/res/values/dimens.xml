@@ -11,4 +11,6 @@
 
     <!-- Keep the lock screen indication between the low UDFPS icon and the bottom edge (old tree) -->
     <dimen name="keyguard_indication_margin_bottom">14dp</dimen>
+    <!-- Keep status bar content clear of the 70 px rounded corners, as the stock OS3.0.305.0 DevicesOverlay.apk -->
+    <dimen name="rounded_corner_content_padding">58px</dimen>
 </resources>

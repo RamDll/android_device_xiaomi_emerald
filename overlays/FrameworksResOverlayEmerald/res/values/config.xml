@@ -9,4 +9,10 @@
          illumination surface + refresh rate vote) and sends onUiReady at once. On clean-1.1 that
          surface was created and destroyed on every touch. Same value as the old tree. -->
     <bool name="config_ignoreUdfpsVote">true</bool>
+    <!-- Display geometry, values as the stock OS3.0.305.0 product overlay DevicesAndroidOverlay.apk (HyperOS ships
+         them in product, which clean-1/clean-2 replace with our own). Without them LineageOS assumes no cutout and
+         square corners: the status bar clock sat at the left edge (2026-10-15). Front camera cutout, in px from the
+         top centre: -->
+    <string translatable="false" name="config_mainBuiltInDisplayCutout">M 0,0 H -28 V 111 H 28 V 0 H 0 Z</string>
+    <string translatable="false" name="config_mainDisplayShape">M20 0h1040s20 0 20 20v2360s0 20 -20 20h-1040s-20 0 -20 -20v-2360s0 -20 20 -20</string>
 </resources>

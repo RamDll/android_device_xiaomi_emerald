@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The LineageOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Rounded corners and status bar height, as the stock OS3.0.305.0 DevicesAndroidOverlay.apk -->
+    <dimen name="rounded_corner_radius">70px</dimen>
+    <dimen name="rounded_corner_radius_top">70px</dimen>
+    <dimen name="rounded_corner_radius_bottom">70px</dimen>
+    <dimen name="status_bar_height_default">111px</dimen>
+    <dimen name="status_bar_height_portrait">111px</dimen>
+</resources>
