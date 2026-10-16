@@ -1,6 +1,6 @@
 # System-side MediaTek blobs from stock OS3.0.305.0.WNFMIXM system_ext (vendor-side files are not
 # listed: vendor, vendor_dlkm, odm_dlkm and system_dlkm ship as the stock images).
-# Selection and the libsink rename as LineageOS motorola/mt6768-common and xelex/Q25.
+# Selection as LineageOS motorola/mt6768-common and xelex/Q25, without the video call service (see IMS).
 # Not taken: the stock audio parameter parser (system_ext/bin/hw/android.hardware.audio.parameter_parser.service).
 # It links android.hardware.audio.core-V3 while LineageOS 23.2 and 24.0 build V4, and audioserver only uses it when
 # ro.audio.ihaladaptervendorextension_enabled=true, which stock sets in system/build.prop (not ours).
@@ -10,9 +10,12 @@
 # android.telephony.TelephonyBaseUtilsStub, a HyperOS framework class -> com.android.phone crash loop on 2026-10-13).
 # mediatek-res declares the MediaTek protected broadcasts (com.mediatek.common.carrierexpress.* ...); without it
 # Android 16 kills com.mediatek.ims: WfcHandler registers a receiver without RECEIVER_EXPORTED (2026-10-13).
+# Not taken on 24.0 (clean-2): the video call service (vtservice, libmtk_vt_service, libimsma*, libsink, libsource,
+# libsignal, libvt_avsync, libcomutils). libsink calls the Android 16 AudioTrack constructor; Android 17 added a
+# codecProvenance argument and an std::string member, so the symbol is gone and AudioTrack is bigger than the
+# blob allocates - no safe shim. Only vtservice, the video call (ViLTE) media service, uses that chain; init starts
+# it only with persist.vendor.vilte_support=1, and the ImsService JNI wrapper libmtk_vt_wrapper needs none of it.
 system_ext/app/mediatek-res/mediatek-res.apk
-system_ext/bin/vtservice
-system_ext/etc/init/init.vtservice.rc
 system_ext/etc/sysconfig/com.mediatek.ims.config.xml
 system_ext/framework/mediatek-ims-base.jar:system/framework/mediatek-ims-base.jar;BOOT_JAR
 system_ext/framework/mediatek-ims-extension-plugin.jar
@@ -22,19 +25,9 @@ system_ext/lib/libvcodec_cap.so
 system_ext/lib/libvcodec_capenc.so
 system_ext/lib/vendor.mediatek.hardware.videotelephony-V1-ndk.so
 system_ext/lib/vendor.mediatek.hardware.videotelephony@1.0.so
-system_ext/lib64/libcomutils.so
-system_ext/lib64/libimsma.so
-system_ext/lib64/libimsma_adapt.so
-system_ext/lib64/libimsma_rtp.so
-system_ext/lib64/libimsma_socketwrapper.so
-system_ext/lib64/libmtk_vt_service.so
 system_ext/lib64/libmtk_vt_wrapper.so
-system_ext/lib64/libsignal.so
-system_ext/lib64/libsink.so:system_ext/lib64/libsink-mtk.so;FIX_SONAME
-system_ext/lib64/libsource.so
 system_ext/lib64/libvcodec_cap.so
 system_ext/lib64/libvcodec_capenc.so
-system_ext/lib64/libvt_avsync.so
 system_ext/lib64/vendor.mediatek.hardware.videotelephony-V1-ndk.so
 system_ext/lib64/vendor.mediatek.hardware.videotelephony@1.0.so
 system_ext/priv-app/ImsService/ImsService.apk

@@ -82,11 +82,11 @@ PRODUCT_PACKAGES += \
     MssiFrameworkTelephonyOverlayProduct \
     MssiTelephonyOverlayProduct
 
-# VoLTE/VT/WFC on carriers whose AOSP carrier config says no (Tele2/Rostelecom 250 20 on the
-# user's SIM, clean-1.1 2026-10-14: no toggle without these; with them VoLTE registered and worked).
+# VoLTE/WFC on carriers whose AOSP carrier config says no (Tele2/Rostelecom 250 20 on the user's
+# SIM, clean-1.1 2026-10-14: no toggle without these; with them VoLTE registered and worked). No VT
+# override: the video call service is not shipped on 24.0 (see proprietary-files.txt).
 PRODUCT_SYSTEM_PROPERTIES += \
     persist.dbg.volte_avail_ovr=1 \
-    persist.dbg.vt_avail_ovr=1 \
     persist.dbg.wfc_avail_ovr=1
 
 # Display

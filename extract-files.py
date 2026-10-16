@@ -9,7 +9,6 @@
 #
 
 from extract_utils.fixups_blob import (
-    blob_fixup,
     blob_fixups_user_type,
 )
 from extract_utils.main import (
@@ -22,9 +21,6 @@ namespace_imports = [
 ]
 
 blob_fixups: blob_fixups_user_type = {
-    # libsink.so is renamed to libsink-mtk.so (as LineageOS motorola/mt6768-common)
-    'system_ext/lib64/libimsma.so': blob_fixup()
-        .replace_needed('libsink.so', 'libsink-mtk.so'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(
