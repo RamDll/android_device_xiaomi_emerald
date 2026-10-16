@@ -147,6 +147,9 @@ TARGET_USERIMAGES_USE_F2FS := true
 # /data/log_wifi_temp with logtemp_data_file, which only base/vendor defines; stock vendor defines it too).
 include device/mediatek/sepolicy_vndr/SEPolicy.mk
 
+# Compat map of the system_ext public types for the stock vendor's 202504 policy (see the file)
+SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/private
+
 # Security patch level (stock vendor)
 VENDOR_SECURITY_PATCH := 2026-06-05
 
