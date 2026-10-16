@@ -135,6 +135,11 @@ PRODUCT_PRODUCT_PROPERTIES += \
     bluetooth.profile.mcp.server.enabled=false \
     bluetooth.profile.vcp.controller.enabled=false
 
+# No "Serial console" notification on userdebug: stop the console shell init.rc starts on debuggable
+# builds (emerald boots with console=ttynull, the shell is attached to nothing).
+PRODUCT_PACKAGES += \
+    emerald_noconsole.rc
+
 # Platform
 TARGET_BOARD_PLATFORM := mt6789
 

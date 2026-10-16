@@ -1,0 +1,11 @@
+#
+# SPDX-FileCopyrightText: The LineageOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# emerald: init.rc starts the "console" shell on every debuggable build
+# (on init && property:ro.debuggable=1), and AMS then posts the ongoing "Serial console enabled" notification
+# (showConsoleNotificationIfActive checks init.svc.console=running at the end of boot). emerald boots with
+# console=ttynull, so that shell is attached to nothing. Stop it as soon as it runs.
+on property:init.svc.console=running
+    stop console
