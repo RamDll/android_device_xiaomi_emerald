@@ -97,6 +97,20 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.lib_gui.frame_event_history_size=10
 
+# Refresh rate selection as the official LineageOS xiaomi_mt6895-common (MediaTek): content detection
+# and idle/touch timers 1100 ms. With the stock vendor's idle timer (600 ms) a screen that updates once a
+# second (Settings > About phone, clock counters, the network traffic indicator) flips 120 -> 60 -> 120 Hz
+# every second, visible as flicker: 60 mode switches in 30 s on clean-2.0. The stock vendor build.prop sets
+# debug.sf.set_idle_timer_ms=600 too and SurfaceFlinger prefers it over ro.surface_flinger.set_idle_timer_ms,
+# so the ro props alone changed nothing (59 switches). Product props are loaded after vendor's and override
+# both. Tested on clean-2.0 through an adb overlay (2026-10-16): 0 switches in 30 s, static screen 60 Hz.
+PRODUCT_PRODUCT_PROPERTIES += \
+    debug.sf.set_idle_timer_ms=1100 \
+    ro.surface_flinger.use_content_detection_for_refresh_rate=true \
+    ro.surface_flinger.set_idle_timer_ms=1100 \
+    ro.surface_flinger.set_touch_timer_ms=1100 \
+    ro.surface_flinger.set_display_power_timer_ms=1000
+
 # Fingerprint (stock HAL): FOD touch mode + scanner state, and the UDFPS icon size / illumination
 # overlays. The /dev/mi_display node for local HBM comes from system/core (clean-2 branch: the
 # mi_display rule in rootdir/ueventd.rc; init reads only /system/etc/ueventd.rc). Same as clean-1.2.1,
