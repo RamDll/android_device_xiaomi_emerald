@@ -15,4 +15,11 @@
          top centre: -->
     <string translatable="false" name="config_mainBuiltInDisplayCutout">M 0,0 H -28 V 111 H 28 V 0 H 0 Z</string>
     <string translatable="false" name="config_mainDisplayShape">M20 0h1040s20 0 20 20v2360s0 20 -20 20h-1040s-20 0 -20 -20v-2360s0 -20 20 -20</string>
+    <!-- The stock MTK vendor overlay (com.mediatek.frameworkresoverlay) points the doze component at
+         com.android.dreams.alwaysondisplay, a HyperOS app we don't ship: DreamValidator rejected it at every screen off,
+         so there was no doze and no notification pulse (2026-10-18). -->
+    <string translatable="false" name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>
+    <!-- AOSP default 0.0 = backlight 1/2047, a black pulse; the stock displayconfig has no doze brightness either.
+         SystemUI clamps it to the current user/auto brightness. Tested on 2.1 by bind mount: visible, not too dim. -->
+    <item name="config_screenBrightnessDozeFloat" format="float" type="dimen">0.06</item>
 </resources>
