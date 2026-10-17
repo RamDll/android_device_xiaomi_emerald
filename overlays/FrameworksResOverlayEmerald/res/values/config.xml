@@ -22,4 +22,13 @@
     <!-- AOSP default 0.0 = backlight 1/2047, a black pulse; the stock displayconfig has no doze brightness either.
          SystemUI clamps it to the current user/auto brightness. Tested on 2.1 by bind mount: visible, not too dim. -->
     <item name="config_screenBrightnessDozeFloat" format="float" type="dimen">0.06</item>
+    <!-- Brightness range for configs/displayconfig/display_port_0.xml (lights HAL scale). A17 DisplayDeviceConfig
+         rejects the map (system_server crash) unless the setting minimum is >= its first backlight point; the stock
+         MTK vendor overlay sets 0.0. Minimum and dim = 1/254 = backlight level 9 (level 1 was black at the slider
+         minimum, tester 2026-10-15); default 0.15 = ~75 nits as stock (307 of 4095). Tested on clean-2.1 by bind
+         mount (2026-10-18): slider minimum level 9 also with auto-brightness, maximum 2047. -->
+    <item name="config_screenBrightnessSettingMinimumFloat" format="float" type="dimen">0.003937008</item>
+    <item name="config_screenBrightnessSettingMaximumFloat" format="float" type="dimen">1.0</item>
+    <item name="config_screenBrightnessSettingDefaultFloat" format="float" type="dimen">0.15</item>
+    <item name="config_screenBrightnessDimFloat" format="float" type="dimen">0.003937008</item>
 </resources>

@@ -97,6 +97,11 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.lib_gui.frame_event_history_size=10
 
+# Brightness map for the AOSP lights HAL path (stock's is for the HyperOS one); the minimum used to be
+# backlight level 1 = black. Goes with the brightness range in FrameworksResOverlayEmerald.
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/displayconfig/display_port_0.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/displayconfig/display_port_0.xml
+
 # Refresh rate selection as the official LineageOS xiaomi_mt6895-common (MediaTek): content detection
 # and idle/touch timers 1100 ms. With the stock vendor's idle timer (600 ms) a screen that updates once a
 # second (Settings > About phone, clock counters, the network traffic indicator) flips 120 -> 60 -> 120 Hz

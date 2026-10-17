@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The LineageOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<!-- Named by port, not by display id, so it applies to both emerald panels.
+
+     The backlight goes through the AOSP lights HAL: LightsService sends 1 + 254 * brightness (8 bit) and the stock
+     HAL writes about 1..2047 to lcd-backlight. Brightness 1.0 is the panel's factory maximum (factory_max_brightness
+     2047, 500 nits in the stock map); the HyperOS HBM range above it is not reachable this way. Level 1 is black, so
+     the first point is 1/254 = level 9 (stock minimum 8 of 4095 = 2 nits). Linear, like the stock map
+     (OS3.0.305.0 product/etc/displayconfig/display_id_4627039422300187648.xml, which assumes the 12 bit HyperOS path:
+     with it the manual maximum here was level 1024). Ambient light horizons as stock. -->
+<displayConfiguration>
+    <screenBrightnessMap>
+        <point>
+            <value>0.003937008</value>
+            <nits>2.0</nits>
+        </point>
+        <point>
+            <value>1.0</value>
+            <nits>500.0</nits>
+        </point>
+    </screenBrightnessMap>
+    <ambientLightHorizonLong>3000</ambientLightHorizonLong>
+    <ambientLightHorizonShort>1000</ambientLightHorizonShort>
+</displayConfiguration>
