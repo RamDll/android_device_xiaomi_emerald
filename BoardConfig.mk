@@ -76,6 +76,10 @@ BOARD_RAMDISK_USE_LZ4 := true
 # Display (stock ro.sf.lcd_density)
 TARGET_SCREEN_DENSITY := 480
 
+# Init: product identity (brand / model / marketname / fingerprint) by hardware SKU, as the stock
+# vendor picks build_${ro.boot.product.hardware.sku}.prop for its own partition (libinit/)
+$(call soong_config_set,libinit,vendor_init_lib,//$(DEVICE_PATH):init_emerald)
+
 # Kernel: stock GKI, see device/xiaomi/emerald-kernel/README.md
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
 BOARD_KERNEL_IMAGE_NAME := Image.lz4

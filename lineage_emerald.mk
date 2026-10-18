@@ -14,7 +14,9 @@ $(call inherit-product, device/xiaomi/emerald/device.mk)
 $(call inherit-product, vendor/lineage/config/common_full_phone.mk)
 
 # Identity from the stock 305 props: ro.product.vendor.*, *_for_attestation, the odm
-# ro.vendor.build.fingerprint (also the stock OTA post-build) and ro.build.description
+# ro.vendor.build.fingerprint (also the stock OTA post-build) and ro.build.description.
+# These are the defaults (Redmi Note 13 Pro); libinit/init_emerald.cpp overrides brand, model,
+# marketname, name and fingerprint at boot by hardware SKU (glb / glb_p POCO M6 Pro / glb_r).
 PRODUCT_NAME := lineage_emerald
 PRODUCT_DEVICE := emerald
 PRODUCT_MANUFACTURER := Xiaomi
