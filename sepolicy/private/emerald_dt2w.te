@@ -1,0 +1,9 @@
+# Double tap to wake switch (touch/dt2w.cpp): finds the touch input device by name and writes one
+# EV_SYN/SYN_CONFIG event to it.
+type emerald_dt2w, domain, coredomain;
+type emerald_dt2w_exec, system_file_type, exec_type, file_type;
+
+init_daemon_domain(emerald_dt2w)
+
+allow emerald_dt2w input_device:dir r_dir_perms;
+allow emerald_dt2w input_device:chr_file { open write ioctl };

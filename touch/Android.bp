@@ -1,0 +1,21 @@
+//
+// SPDX-FileCopyrightText: The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// Double tap to wake switch for the stock FocalTech touch driver (see dt2w.cpp).
+cc_binary {
+    name: "emerald_dt2w",
+    system_ext_specific: true,
+    init_rc: ["emerald_dt2w.rc"],
+    srcs: ["dt2w.cpp"],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}

@@ -35,4 +35,8 @@
     <item name="config_screenBrightnessSettingMaximumFloat" format="float" type="dimen">1.0</item>
     <item name="config_screenBrightnessSettingDefaultFloat" format="float" type="dimen">0.15</item>
     <item name="config_screenBrightnessDimFloat" format="float" type="dimen">0.003937008</item>
+    <!-- "Tap to wake" in Settings. EmeraldUdfps and emerald_dt2w switch the touch panel's gesture
+         (udfps/DoubleTapToWake.java, touch/dt2w.cpp): the stock power HAL doesn't drive the touch panel.
+         Tested by hand on 2.3 (2026-10-18). -->
+    <bool name="config_supportDoubleTapWake">true</bool>
 </resources>

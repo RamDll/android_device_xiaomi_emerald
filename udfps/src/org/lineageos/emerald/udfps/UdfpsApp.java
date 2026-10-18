@@ -66,6 +66,11 @@ public class UdfpsApp extends Application {
             } catch (RuntimeException e) {
                 Log.e(TAG, "setup failed, fingerprint bridge disabled", e);
             }
+            try {
+                new DoubleTapToWake(this, mHandler).start();
+            } catch (RuntimeException e) {
+                Log.e(TAG, "double tap to wake disabled", e);
+            }
         });
     }
 

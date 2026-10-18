@@ -1,3 +1,6 @@
 # HAL modules that AudioFlinger loads with device connection simulation on (frameworks/av, clean-2):
 # the stock MediaTek "default" module connects external devices only that way. Read by audioserver.
 ro.audio.simulate_device_connections    u:object_r:system_audio_config_prop:s0 exact string
+
+# Double tap to wake (touch/emerald_dt2w.rc)
+sys.emerald.dt2w                        u:object_r:emerald_dt2w_prop:s0 exact bool

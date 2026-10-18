@@ -1,0 +1,18 @@
+# Double tap to wake: EmeraldUdfps mirrors Settings.Secure.DOUBLE_TAP_TO_WAKE into sys.emerald.dt2w.
+service emerald_dt2w_on /system_ext/bin/emerald_dt2w 1
+    user system
+    group input
+    disabled
+    oneshot
+
+service emerald_dt2w_off /system_ext/bin/emerald_dt2w 0
+    user system
+    group input
+    disabled
+    oneshot
+
+on property:sys.emerald.dt2w=1
+    start emerald_dt2w_on
+
+on property:sys.emerald.dt2w=0
+    start emerald_dt2w_off

@@ -1,0 +1,2 @@
+# Double tap to wake on/off, set by EmeraldUdfps, read by init (touch/emerald_dt2w.rc)
+system_internal_prop(emerald_dt2w_prop)

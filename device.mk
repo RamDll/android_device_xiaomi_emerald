@@ -151,6 +151,10 @@ PRODUCT_PACKAGES += \
     FrameworksResOverlayEmerald \
     SystemUIResOverlayEmerald
 
+# Double tap to wake: the touch gesture switch run by init for EmeraldUdfps (touch/dt2w.cpp).
+PRODUCT_PACKAGES += \
+    emerald_dt2w
+
 # Bluetooth profiles. The Bluetooth module enables a profile only when its sysprop is true
 # (A2dpService.isEnabled() = isProfileA2dpSourceEnabled().orElse(false)); stock sets these in the
 # HyperOS system + product build.prop, which clean-2 doesn't ship, so only GATT (BLE: the watch),
