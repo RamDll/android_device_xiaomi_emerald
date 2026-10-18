@@ -22,6 +22,10 @@
     <!-- AOSP default 0.0 = backlight 1/2047, a black pulse; the stock displayconfig has no doze brightness either.
          SystemUI clamps it to the current user/auto brightness. Tested on 2.1 by bind mount: visible, not too dim. -->
     <item name="config_screenBrightnessDozeFloat" format="float" type="dimen">0.06</item>
+    <!-- With auto-brightness on, the notification pulse uses the current auto-brightness instead of the fixed doze
+         value above (that one stays for manual brightness). The light sensor runs only while the pulse is on, not with
+         the screen off in doze. Tested on 2.2 by bind mount (2026-10-18). -->
+    <bool name="config_allowAutoBrightnessWhileDozing">true</bool>
     <!-- Brightness range for configs/displayconfig/display_port_0.xml (lights HAL scale). A17 DisplayDeviceConfig
          rejects the map (system_server crash) unless the setting minimum is >= its first backlight point; the stock
          MTK vendor overlay sets 0.0. Minimum and dim = 1/254 = backlight level 9 (level 1 was black at the slider
