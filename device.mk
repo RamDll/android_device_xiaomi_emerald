@@ -100,6 +100,14 @@ PRODUCT_PACKAGES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.audio.ihaladaptervendorextension_enabled=true
 
+# Audio: the stock MediaTek "default" (primary) AIDL module does not implement
+# Module::populateConnectedDevicePort, so connectExternalDevice works only with device connection
+# simulation on: without it every wired headset plug failed (APM -38, tester + our phone on 2.2,
+# 2026-10-18; worked again after `service call media.audio_flinger 63 i32 1`). Our frameworks/av
+# (clean-2) turns simulation on for the modules listed here, right after loading them.
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.audio.simulate_device_connections=primary
+
 # Display
 # libgui deadlocks in BLASTBufferQueue::initialize when maxAcquired + 4 > the frame event history
 # size (default 8): the stock vendor's debug.sf.*duration props give maxAcquired 5 at 120 Hz, so the
