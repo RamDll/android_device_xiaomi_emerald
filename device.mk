@@ -89,6 +89,17 @@ PRODUCT_SYSTEM_PROPERTIES += \
     persist.dbg.volte_avail_ovr=1 \
     persist.dbg.wfc_avail_ovr=1
 
+# Audio: libaudiohal (AIDL) passes setParameters keys it does not know to the HAL only through an
+# IHalAdapterVendorExtension service; without one they are dropped, so the stock MediaTek HAL never
+# got MtkInCallService's volumeIndex (in-call volume stuck at the framework's -56 gain step at 15/15,
+# clean-2.2 call log 2026-10-18). Stock HyperOS ships the same service in system_ext and sets the prop
+# in system/build.prop. See audio/parameter_parser.
+PRODUCT_PACKAGES += \
+    android.hardware.audio.parameter_parser.service
+
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.audio.ihaladaptervendorextension_enabled=true
+
 # Display
 # libgui deadlocks in BLASTBufferQueue::initialize when maxAcquired + 4 > the frame event history
 # size (default 8): the stock vendor's debug.sf.*duration props give maxAcquired 5 at 120 Hz, so the
