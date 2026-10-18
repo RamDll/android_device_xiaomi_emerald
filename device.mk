@@ -97,6 +97,13 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.lib_gui.frame_event_history_size=10
 
+# Frame timestamps to MediaTek GED (frameworks/native clean-2 "libgui: Report frame timestamps to
+# MediaTek GED KPI"; the stock HyperOS libgui always reports them): without them the GPU stays at
+# 470-500 MHz in activity transitions, Settings 16 % janky frames -> 6 % with (jank_trans.sh, clean-2.2,
+# 2026-10-18). A debug prop, so it can be switched off with adb for A/B runs.
+PRODUCT_SYSTEM_PROPERTIES += \
+    debug.lib_gui.mtk_ged_kpi=1
+
 # Brightness map for the AOSP lights HAL path (stock's is for the HyperOS one); the minimum used to be
 # backlight level 1 = black. Goes with the brightness range in FrameworksResOverlayEmerald.
 PRODUCT_COPY_FILES += \
