@@ -60,23 +60,6 @@ void set_ro_build_prop(const std::string& prop, const std::string& value, bool p
     }
 }
 
-// brand/product/device:version/id/number:variant/tags -> product-variant version id number tags
-std::string fingerprint_to_description(std::string fingerprint) {
-    auto take = [&fingerprint](const std::string& delimiter) {
-        std::string part = fingerprint.substr(0, fingerprint.find(delimiter));
-        fingerprint.erase(0, fingerprint.find(delimiter) + delimiter.length());
-        return part;
-    };
-    take("/");
-    std::string product = take("/");
-    take(":");
-    std::string version = take("/");
-    std::string id = take("/");
-    std::string number = take(":");
-    std::string variant = take("/");
-    return product + "-" + variant + " " + version + " " + id + " " + number + " " + fingerprint;
-}
-
 }  // namespace
 
 void vendor_load_properties() {
@@ -88,13 +71,11 @@ void vendor_load_properties() {
         set_ro_build_prop("name", v.name, true);
         set_ro_build_prop("marketname", v.marketname, true);
         set_ro_build_prop("model", v.model, true);
-        property_override("vendor.usb.product_string", v.marketname);
 
         if (access("/system/bin/recovery", F_OK) != 0) {
             property_override("bluetooth.device.default_name", v.marketname);
             set_ro_build_prop("fingerprint", v.fingerprint, false);
             property_override("ro.bootimage.build.fingerprint", v.fingerprint);
-            property_override("ro.build.description", fingerprint_to_description(v.fingerprint));
         }
         break;
     }
