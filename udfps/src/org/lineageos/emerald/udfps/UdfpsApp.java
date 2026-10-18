@@ -71,6 +71,11 @@ public class UdfpsApp extends Application {
             } catch (RuntimeException e) {
                 Log.e(TAG, "double tap to wake disabled", e);
             }
+            try {
+                new ScreenOffPulse(this, mHandler).start();
+            } catch (RuntimeException e) {
+                Log.e(TAG, "screen-off pulse disabled", e);
+            }
         });
     }
 

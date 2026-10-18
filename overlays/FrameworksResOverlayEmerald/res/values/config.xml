@@ -39,4 +39,9 @@
          (udfps/DoubleTapToWake.java, touch/dt2w.cpp): the stock power HAL doesn't drive the touch panel.
          Tested by hand on 2.3 (2026-10-18). -->
     <bool name="config_supportDoubleTapWake">true</bool>
+    <!-- "Lift to check phone" in Settings, and screen-off fingerprint unlock on by default as on HyperOS and the old
+         tree. EmeraldUdfps shows the ambient screen for both (udfps/ScreenOffPulse.java, udfps/KeyHandler.java):
+         SystemUI's doze sensors take one-shot sensors only. Tested by hand on 2.3 (2026-10-18). -->
+    <bool name="config_dozePulsePickup">true</bool>
+    <bool name="config_screen_off_udfps_default_on">true</bool>
 </resources>

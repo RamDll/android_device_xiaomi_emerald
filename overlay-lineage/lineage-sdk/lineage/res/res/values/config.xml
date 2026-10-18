@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The LineageOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- LineageOS default (LineageParts) + EmeraldUdfps's handler for the touch panel's finger-on-sensor key, which
+         shows the ambient screen for screen-off fingerprint unlock (udfps/KeyHandler.java). -->
+    <string-array name="config_deviceKeyHandlerLibs" translatable="false">
+        <item>/system_ext/priv-app/LineageParts/LineageParts.apk</item>
+        <item>/system_ext/priv-app/EmeraldUdfps/EmeraldUdfps.apk</item>
+    </string-array>
+    <string-array name="config_deviceKeyHandlerClasses" translatable="false">
+        <item>org.lineageos.lineageparts.gestures.KeyHandler</item>
+        <item>org.lineageos.emerald.udfps.KeyHandler</item>
+    </string-array>
+</resources>
