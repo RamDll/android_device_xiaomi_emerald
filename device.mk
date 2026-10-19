@@ -89,6 +89,17 @@ PRODUCT_SYSTEM_PROPERTIES += \
     persist.dbg.volte_avail_ovr=1 \
     persist.dbg.wfc_avail_ovr=1
 
+# Video calls (ViLTE / ViWiFi) off. The stock vendor build.prop turns them on, but the video call service
+# (vtservice, media.VTS) is not shipped on 24.0. With either prop at 1, com.mediatek.ims calls
+# libmtk_vt_wrapper from a NetworkCallback.onAvailable (ImsVTProviderUtil) and getVTClient waits for
+# media.VTS forever, blocking the app's ConnectivityThread: no later network callback arrives, so after
+# the first IMS PDN loss (LTE off/on, a short LTE drop) ImsDataSynchronizer never confirms the release to
+# the modem and IMS stays unregistered until a reboot (clean-2.4 bugreports, 2026-10-19). Product props
+# are loaded after vendor's and override them.
+PRODUCT_PRODUCT_PROPERTIES += \
+    persist.vendor.vilte_support=0 \
+    persist.vendor.viwifi_support=0
+
 # Audio: libaudiohal (AIDL) passes setParameters keys it does not know to the HAL only through an
 # IHalAdapterVendorExtension service; without one they are dropped, so the stock MediaTek HAL never
 # got MtkInCallService's volumeIndex (in-call volume stuck at the framework's -56 gain step at 15/15,

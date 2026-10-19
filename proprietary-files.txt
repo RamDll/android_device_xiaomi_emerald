@@ -14,7 +14,8 @@
 # libsignal, libvt_avsync, libcomutils). libsink calls the Android 16 AudioTrack constructor; Android 17 added a
 # codecProvenance argument and an std::string member, so the symbol is gone and AudioTrack is bigger than the
 # blob allocates - no safe shim. Only vtservice, the video call (ViLTE) media service, uses that chain; init starts
-# it only with persist.vendor.vilte_support=1, and the ImsService JNI wrapper libmtk_vt_wrapper needs none of it.
+# it only with persist.vendor.vilte_support=1. The ImsService JNI wrapper libmtk_vt_wrapper loads without it but
+# blocks waiting for it while ViLTE / ViWiFi are on, so device.mk turns both off.
 system_ext/app/mediatek-res/mediatek-res.apk
 system_ext/etc/sysconfig/com.mediatek.ims.config.xml
 system_ext/framework/mediatek-ims-base.jar:system/framework/mediatek-ims-base.jar;BOOT_JAR
