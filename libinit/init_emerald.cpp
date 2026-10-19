@@ -52,8 +52,8 @@ void property_override(const std::string& prop, const std::string& value, bool a
 }
 
 void set_ro_build_prop(const std::string& prop, const std::string& value, bool product) {
-    for (const std::string source : {"odm.", "odm_dlkm.", "product.", "system.", "system_ext.",
-                                     "vendor.", "vendor_dlkm.", ""}) {
+    for (const std::string source : {"bootimage.", "odm.", "odm_dlkm.", "product.", "system.",
+                                     "system_ext.", "vendor.", "vendor_dlkm.", ""}) {
         property_override(product ? "ro.product." + source + prop
                                   : "ro." + source + "build." + prop,
                           value);
@@ -75,7 +75,6 @@ void vendor_load_properties() {
         if (access("/system/bin/recovery", F_OK) != 0) {
             property_override("bluetooth.device.default_name", v.marketname);
             set_ro_build_prop("fingerprint", v.fingerprint, false);
-            property_override("ro.bootimage.build.fingerprint", v.fingerprint);
         }
         break;
     }
