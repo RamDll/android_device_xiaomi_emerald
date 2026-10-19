@@ -166,6 +166,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     emerald_dt2w
 
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/keylayout/goodix_ts.kl:$(TARGET_COPY_OUT_PRODUCT)/usr/keylayout/goodix_ts.kl
+
 # Screen-off fingerprint unlock: EmeraldUdfps's key handler in PhoneWindowManager (lineage-sdk
 # config_deviceKeyHandler*). A build-time overlay, not an RRO: system_server reads lineage-sdk
 # resources from the zygote's system assets, which take no RRO for lineageos.platform (an adb-installed

@@ -1,0 +1,6 @@
+# Goodix gt9916 touchscreen. Its driver reports the double tap gesture as KEY_POWER, at
+# times twice in a row, which the framework takes for a power button double press and
+# opens the camera. Map it to WAKEUP so that it only wakes the screen. The FOD (338) and
+# single tap (354) keys stay unmapped, as with Generic.kl.
+
+key 116   WAKEUP
