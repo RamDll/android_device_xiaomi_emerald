@@ -56,6 +56,15 @@ PATCHES = {
          "2e1f0094",  # bl FodEngineCore::init()
          "1f2003d5"),  # nop
     ]),
+    "vendor_dlkm.img": ("vendor_dlkm.patched.img", [
+        # LVTS (CPU, GPU and SoC thermal sensors) loses power in s2idle and the stock
+        # module has empty suspend/resume callbacks, so every LVTS zone reads invalid
+        # after the first sleep. Ours re-initializes LVTS on resume; source and build
+        # notes in device/xiaomi/emerald-kernel/modules/soc_temp_lvts.
+        ("file", "/lib/modules/soc_temp_lvts.ko",
+         "device/xiaomi/emerald-kernel/vendor_dlkm/soc_temp_lvts.ko",
+         "acb689596ea729af692a168dd87536327be444fb6a11eea793ab5e39945c0cc7"),
+    ]),
 }
 
 lz4 = ctypes.CDLL("liblz4.so.1")

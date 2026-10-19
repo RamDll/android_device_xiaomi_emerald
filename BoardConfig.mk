@@ -133,9 +133,9 @@ BOARD_USES_METADATA_PARTITION := true
 -include vendor/lineage/config/BoardConfigReservedSize.mk
 
 # Stock vendor-side images (copied by extract-images.sh), used as they are except
-# vendor.img, which gets the fixes in patch-images.py
+# vendor.img and vendor_dlkm.img, which get the fixes in patch-images.py
 BOARD_PREBUILT_VENDORIMAGE := $(IMAGES_PATH)/vendor.patched.img
-BOARD_PREBUILT_VENDOR_DLKMIMAGE := $(IMAGES_PATH)/vendor_dlkm.img
+BOARD_PREBUILT_VENDOR_DLKMIMAGE := $(IMAGES_PATH)/vendor_dlkm.patched.img
 BOARD_PREBUILT_ODM_DLKMIMAGE := $(IMAGES_PATH)/odm_dlkm.img
 BOARD_PREBUILT_SYSTEM_DLKMIMAGE := $(IMAGES_PATH)/system_dlkm.img
 
