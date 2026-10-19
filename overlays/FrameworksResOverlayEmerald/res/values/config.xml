@@ -44,4 +44,7 @@
          SystemUI's doze sensors take one-shot sensors only. Tested by hand on 2.3 (2026-10-18). -->
     <bool name="config_dozePulsePickup">true</bool>
     <bool name="config_screen_off_udfps_default_on">true</bool>
+    <!-- Shows the screen-off unlock switch in Settings (FingerprintSettings.isScreenOffUnlcokSupported). It changes
+         nothing else here: without config_dozeUdfpsLongPressSensorType SystemUI's screen-off udfps paths stay off. -->
+    <bool name="config_screen_off_udfps_enabled">true</bool>
 </resources>
