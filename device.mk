@@ -119,6 +119,11 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.audio.simulate_device_connections=primary
 
+# MTP: report the phone as a mobile handset (perceived device type 3); with the default 0 Windows
+# shows a generic media player icon. MtpDatabase reads it at the start of every MTP session.
+PRODUCT_PRODUCT_PROPERTIES += \
+    sys.usb.mtp.device_type=3
+
 # Display
 # libgui deadlocks in BLASTBufferQueue::initialize when maxAcquired + 4 > the frame event history
 # size (default 8): the stock vendor's debug.sf.*duration props give maxAcquired 5 at 120 Hz, so the
