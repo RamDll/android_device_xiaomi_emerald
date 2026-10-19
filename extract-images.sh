@@ -3,13 +3,15 @@
 # SPDX-FileCopyrightText: The LineageOS Project
 # SPDX-License-Identifier: Apache-2.0
 #
-# Copies the stock vendor-side partition images that clean-1 ships unchanged
-# (BOARD_PREBUILT_*IMAGE) into vendor/xiaomi/emerald-images and checks them against
-# images.sha256.
+# Copies the stock vendor-side partition images (BOARD_PREBUILT_*IMAGE) into
+# vendor/xiaomi/emerald-images, checks them against images.sha256 and makes the
+# patched images with patch-images.py.
 #
 # Usage: ./extract-images.sh <dir>
 #   <dir> holds the stock partitions as <name>.img or <name>_a.img, e.g. the output of
-#   `lpunpack.py super.img <dir>` for a fastboot package, or `ota_extractor` for a recovery ROM.
+#   `lpunpack super.img <dir>` (AOSP, out/host) for a fastboot package, or `ota_extractor` for
+#   a recovery ROM. The stock super.img stores some blocks as sparse FILL chunks with non-zero
+#   values; lpunpack.py wrote them as zeros, which the checksum check below catches.
 #
 
 set -e
@@ -41,3 +43,5 @@ grep -v '^#' "${MY_DIR}/images.sha256" | while read -r SHA256 IMAGE; do
     echo "${SHA256}  ${OUT_DIR}/${IMAGE}" | sha256sum --check --quiet
     echo "${IMAGE}: ok"
 done
+
+"${MY_DIR}/patch-images.py"
