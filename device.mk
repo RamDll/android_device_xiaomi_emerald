@@ -119,6 +119,12 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.audio.simulate_device_connections=primary
 
+# Dolby: the stock vendor's DAX3 DAP (libswdapaidl) has no system-side app on LineageOS. XiaomiDolby
+# (dolby/, from AOSPA) attaches it to the output mix; our frameworks/av (clean-2) keeps the stock
+# Dolby volume listeners on music sessions from suspending it. It replaces AudioFX.
+PRODUCT_PACKAGES += \
+    XiaomiDolby
+
 # MTP: report the phone as a mobile handset (perceived device type 3); with the default 0 Windows
 # shows a generic media player icon. MtpDatabase reads it at the start of every MTP session.
 PRODUCT_PRODUCT_PROPERTIES += \
