@@ -72,6 +72,14 @@ PATCHES = {
         ("bytes", "/etc/vintf/manifest/android.hardware.health-service.example.xml", 0xed,
          "34",  # "4"
          "35"),  # "5"
+        # Its options for this fuel gauge, read from vendor properties: the charge counter is
+        # in mAh; the maximum current and voltage do not depend on the charger, so report
+        # standard USB ports as 500 mA at 5 V and chargers by their negotiated power.
+        ("append", "/build.prop",
+         "# Health HAL options (device/xiaomi/emerald patch-images.py)\n"
+         "ro.vendor.health.charge_counter_in_mah=true\n"
+         "ro.vendor.health.usb_max_is_static=true\n",
+         "1802cc306e6ef01a7be6e827dd9580e513b594dc17d9ae629190a9e563aa4edc"),
     ]),
     "vendor_dlkm.img": ("vendor_dlkm.patched.img", [
         # LVTS (CPU, GPU and SoC thermal sensors) loses power in s2idle and the stock
