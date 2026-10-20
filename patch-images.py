@@ -80,6 +80,13 @@ PATCHES = {
          "ro.vendor.health.charge_counter_in_mah=true\n"
          "ro.vendor.health.usb_max_is_static=true\n",
          "1802cc306e6ef01a7be6e827dd9580e513b594dc17d9ae629190a9e563aa4edc"),
+        # libbatterymonitor reads the type of every power supply on each update, so it searches
+        # the fuel gauge node bms too. bms is type Battery and must not count as a second
+        # battery: do not audit the denial. init compiles the split policy at every boot (the
+        # stock precompiled policy does not match our system), so the vendor cil is used.
+        ("append", "/etc/selinux/vendor_sepolicy.cil",
+         "(dontaudit hal_health_default sysfs_bms_device (dir (search)))\n",
+         "efc26713aa8cd468bb13ea577dcab1ab2142006284ee9b7bf80325fd9b5d3c78"),
     ]),
     "vendor_dlkm.img": ("vendor_dlkm.patched.img", [
         # LVTS (CPU, GPU and SoC thermal sensors) loses power in s2idle and the stock
