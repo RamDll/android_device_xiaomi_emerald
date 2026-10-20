@@ -7,10 +7,12 @@ package org.lineageos.emerald.udfps;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.hardware.display.AmbientDisplayConfiguration;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
@@ -29,6 +31,13 @@ import com.android.internal.os.DeviceKeyHandler;
  * shows the ambient screen, as ScreenOffPulse does for the pickup sensor; there the HAL lights the
  * sensor and unlocks while the finger is still down. The stock "xiaomi.sensor.fod" sensor is no use
  * here: it fires on pickup, not on a finger. Tested by hand on clean-2.3, 2026-10-18.
+ *
+ * The ambient screen needs doze, and Android dozes only with an ambient display option on
+ * (DreamComponentsResolver.getDozeComponent -> AmbientDisplayConfiguration.enabled); the switch
+ * itself doesn't count while config_dozeUdfpsLongPressSensorType is empty. With all of them off
+ * nothing takes the pulse (tester, clean-2.5, 2026-10-19), so this wakes the screen instead and the
+ * HAL lights the sensor on the lock screen. A keylayout test (338 -> WAKEUP) did the same on
+ * clean-2.3: full wake, then unlock.
  */
 public class KeyHandler implements DeviceKeyHandler {
     private static final String TAG = "EmeraldKeyHandler";
@@ -57,15 +66,25 @@ public class KeyHandler implements DeviceKeyHandler {
             mHandler.post(() -> {
                 try {
                     if (screenOffUnlockEnabled()) {
-                        ScreenOffPulse.requestPulse(mContext, UserHandle.SYSTEM);
+                        showSensor();
                     }
                 } catch (RuntimeException e) {
-                    Log.e(TAG, "screen-off unlock pulse failed", e);
+                    Log.e(TAG, "screen-off unlock failed", e);
                 }
             });
         }
         // An unmapped key (KEYCODE_UNKNOWN) that nothing else wants.
         return null;
+    }
+
+    private void showSensor() {
+        // Read on every finger-down, not cached: the ambient display settings can change at any time.
+        if (new AmbientDisplayConfiguration(mContext).enabled(ActivityManager.getCurrentUser())) {
+            ScreenOffPulse.requestPulse(mContext, UserHandle.SYSTEM);
+        } else {
+            mPowerManager.wakeUp(SystemClock.uptimeMillis(), PowerManager.WAKE_REASON_BIOMETRIC,
+                    "org.lineageos.emerald.udfps:FINGER_DOWN");
+        }
     }
 
     private boolean screenOffUnlockEnabled() {
