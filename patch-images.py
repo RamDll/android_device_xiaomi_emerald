@@ -3,8 +3,8 @@
 # SPDX-FileCopyrightText: The LineageOS Project
 # SPDX-License-Identifier: Apache-2.0
 #
-# Makes <name>.patched.img from stock images in vendor/xiaomi/emerald-images. Two kinds of
-# changes, both made in place in the stock EROFS image so that everything else stays
+# Makes <name>.patched.img from stock images in vendor/xiaomi/emerald-images. Three kinds of
+# changes, all made in place in the stock EROFS image so that everything else stays
 # byte-identical (labels, owners, other files):
 #  - bytes: a few bytes in one file. The stock images compress files with LZ4 into
 #    one-block pclusters, so the pcluster holding the bytes is decompressed, changed and
@@ -15,6 +15,8 @@
 #    the last block of the filesystem and the file's inode is switched to it (flat plain
 #    layout, new size and block address); the superblock gets the new block count and
 #    checksum. The old data blocks are left unused.
+#  - append: text added at the end of one file; the stock content plus the text is then
+#    written as with file.
 # The AVB hashtree footer is then rebuilt with the stock parameters (checked first: rebuilt
 # on the unchanged data it must give back the stock image byte for byte). The partition
 # size grows only if the data no longer fits.
@@ -43,8 +45,9 @@ HOST_BIN = os.path.join(ANDROID_ROOT, "out/host/linux-x86/bin")
 BLOCK = 4096
 SB_OFFSET = 1024
 
-# image -> (output, [("bytes", path in the image, file offset, stock bytes, new bytes) or
-#                    ("file", path in the image, new content (from ANDROID_ROOT), its sha256)])
+# image -> (output, [("bytes", path in the image, file offset, stock bytes, new bytes),
+#                    ("file", path in the image, new content (from ANDROID_ROOT), its sha256) or
+#                    ("append", path in the image, text, sha256 of the stock content + text)])
 PATCHES = {
     "vendor.img": ("vendor.patched.img", [
         # The fingerprint HAL runs FodEngineCore::init() twice at start: from the
@@ -357,6 +360,15 @@ def main():
                     expected[path] = bytearray(cat(stock, path))
                 ranges += patch_bytes(tmp, path, offset, old, new)
                 expected[path][offset:offset + len(new)] = new
+            elif patch[0] == "append":
+                _, path, text, digest = patch
+                if path in expected:
+                    die(f"{path}: append after another patch of the same file")
+                content = cat(stock, path) + text.encode()
+                if hashlib.sha256(content).hexdigest() != digest:
+                    die(f"{path}: sha256 of the stock content + text does not match")
+                ranges += replace_file(tmp, path, content)
+                expected[path] = content
             else:
                 _, path, src, digest = patch
                 content = open(os.path.join(ANDROID_ROOT, src), "rb").read()
