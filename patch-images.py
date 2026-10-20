@@ -68,6 +68,10 @@ PATCHES = {
         ("file", "/bin/hw/android.hardware.health-service.example",
          "device/xiaomi/emerald/prebuilts/health/android.hardware.health-service.mediatek",
          "9b5752a946c2b3102fc1f18da3824e91d66a67f8584986947b2f91671f46f665"),
+        # Ours serves V5; declare it (the stock fragment says 4).
+        ("bytes", "/etc/vintf/manifest/android.hardware.health-service.example.xml", 0xed,
+         "34",  # "4"
+         "35"),  # "5"
     ]),
     "vendor_dlkm.img": ("vendor_dlkm.patched.img", [
         # LVTS (CPU, GPU and SoC thermal sensors) loses power in s2idle and the stock
