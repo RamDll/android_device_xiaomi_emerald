@@ -158,6 +158,14 @@ PRODUCT_PRODUCT_PROPERTIES += \
     ro.surface_flinger.set_touch_timer_ms=1100 \
     ro.surface_flinger.set_display_power_timer_ms=1000
 
+# Window and shade blur, as stock OS3.0.305.0 (its system_ext.prop sets the same prop on this vendor and
+# Mali r54p1 driver). On clean-2.7 this prop was the only missing condition (SystemUI BlurUtils:
+# isHighEndGfx true, disable_window_blurs 0). The off switch is AOSP's: Settings > Accessibility >
+# Color and motion "Reduce blur effects" / Developer options "Allow window-level blurs".
+# Not measured yet with our RenderEngine (SkiaGL): shade jank A/B with blur on/off after installing.
+PRODUCT_PRODUCT_PROPERTIES += \
+    ro.surface_flinger.supports_background_blur=1
+
 # Fingerprint (stock HAL): FOD touch mode + scanner state, and the UDFPS icon size / illumination
 # overlays. The /dev/mi_display node for local HBM comes from system/core (clean-2 branch: the
 # mi_display rule in rootdir/ueventd.rc; init reads only /system/etc/ueventd.rc). Same as clean-1.2.1,
