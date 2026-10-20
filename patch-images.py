@@ -8,7 +8,9 @@
 # byte-identical (labels, owners, other files):
 #  - bytes: a few bytes in one file. The stock images compress files with LZ4 into
 #    one-block pclusters, so the pcluster holding the bytes is decompressed, changed and
-#    compressed back into the same block (it must still fit).
+#    compressed back into the same block (it must still fit). Files smaller than a block
+#    may instead be stored uncompressed right after their inode (flat inline layout); those
+#    are changed in place.
 #  - file: the whole content of one file. The new content is appended uncompressed after
 #    the last block of the filesystem and the file's inode is switched to it (flat plain
 #    layout, new size and block address); the superblock gets the new block count and
@@ -176,8 +178,50 @@ def extents(image, path):
         r"^\s*\d+:\s+(\d+)\.\.\s*(\d+) \|\s*\d+ :\s+(\d+)\.\.\s*(\d+) \|\s*(\d+)$", out, re.M)]
 
 
+def inline_data(image, path):
+    """Image offset and size of the data of a file stored whole after its inode, or None."""
+    nid = nid_of(image, path)
+    with open(image, "rb") as f:
+        meta_blkaddr = struct.unpack_from("<I", read_sb(f), 40)[0]
+        ipos = meta_blkaddr * BLOCK + nid * 32
+        f.seek(ipos)
+        inode = f.read(32)
+    i_format, xattr_icount = struct.unpack_from("<HH", inode, 0)
+    if (i_format >> 1) & 7 != 2:  # EROFS_INODE_FLAT_INLINE
+        return None
+    size = struct.unpack_from("<I", inode, 8)[0]
+    if i_format & 1 or size >= BLOCK:
+        die(f"{path}: only compact inline inodes of less than a block are handled")
+    # erofs_xattr_ibody_header (12 bytes) and xattr_icount - 1 more 4-byte slots
+    xattr_size = 12 + 4 * (xattr_icount - 1) if xattr_icount else 0
+    return ipos + 32 + xattr_size, size
+
+
+def patch_inline(image, path, pos, size, offset, old, new):
+    with open(image, "r+b") as f:
+        f.seek(pos)
+        if f.read(size) != cat(image, path):
+            die(f"{path}: inline data is not at {pos}")
+        f.seek(pos + offset)
+        found = f.read(len(old))
+        if found != old:
+            die(f"{path}+{offset:#x}: found {found.hex()}, expected {old.hex()}")
+        f.seek(pos + offset)
+        f.write(new)
+    print(f"  {path}+{offset:#x}: {old.hex()} -> {new.hex()} (inline at {pos})")
+    return [(pos + offset, pos + offset + len(new))]
+
+
 def patch_bytes(image, path, offset, old, new):
     """Returns the changed byte ranges."""
+    if len(new) != len(old):
+        die(f"{path}+{offset:#x}: the new bytes must be as many as the old ones")
+    inline = inline_data(image, path)
+    if inline:
+        pos, size = inline
+        if offset + len(old) > size:
+            die(f"{path}+{offset:#x}: past the end of the file")
+        return patch_inline(image, path, pos, size, offset, old, new)
     for lstart, lend, pstart, pend, plen in extents(image, path):
         if lstart <= offset and offset + len(old) <= lend:
             break
