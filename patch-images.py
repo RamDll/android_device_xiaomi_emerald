@@ -60,6 +60,14 @@ PATCHES = {
         ("bytes", "/bin/hw/android.hardware.biometrics.fingerprint-service.odm", 0x9058,
          "2e1f0094",  # bl FodEngineCore::init()
          "1f2003d5"),  # nop
+        # The stock vendor runs the AOSP example health HAL (V4). It passes the charge counter
+        # of the Xiaomi fuel gauge on as it is, in mAh where Android expects uAh (Settings
+        # showed "2 mAh"), and the stock maximum charging current and voltage on every port
+        # (12.4 A x 11 V on a PC port too: "fast charging" on any cable). Ours from LineageOS
+        # hardware/mediatek can handle both; see prebuilts/health/README.md.
+        ("file", "/bin/hw/android.hardware.health-service.example",
+         "device/xiaomi/emerald/prebuilts/health/android.hardware.health-service.mediatek",
+         "9b5752a946c2b3102fc1f18da3824e91d66a67f8584986947b2f91671f46f665"),
     ]),
     "vendor_dlkm.img": ("vendor_dlkm.patched.img", [
         # LVTS (CPU, GPU and SoC thermal sensors) loses power in s2idle and the stock
