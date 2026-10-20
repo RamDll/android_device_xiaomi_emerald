@@ -198,6 +198,8 @@ def inline_data(image, path):
 
 
 def patch_inline(image, path, pos, size, offset, old, new):
+    if pos < BLOCK:
+        die(f"{path}: inline data in block 0 is covered by the superblock checksum")
     with open(image, "r+b") as f:
         f.seek(pos)
         if f.read(size) != cat(image, path):
@@ -290,6 +292,9 @@ def replace_file(image, path, content):
         f.seek(ipos)
         f.write(inode)
 
+        # The superblock checksum covers the rest of block 0, which holds the first inodes
+        # when meta_blkaddr is 0: read it again after the inode write.
+        sb = read_sb(f)
         struct.pack_into("<I", sb, 36, blocks)
         struct.pack_into("<I", sb, 4, sb_checksum(sb))
         f.seek(SB_OFFSET)
