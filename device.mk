@@ -158,6 +158,10 @@ PRODUCT_PRODUCT_PROPERTIES += \
     ro.surface_flinger.set_touch_timer_ms=1100 \
     ro.surface_flinger.set_display_power_timer_ms=1000
 
+# Max / min refresh rate lists in Settings > Display (SettingsResOverlayEmerald).
+PRODUCT_PACKAGES += \
+    SettingsResOverlayEmerald
+
 # Window and shade blur, as stock OS3.0.305.0 (its system_ext.prop sets the same prop on this vendor and
 # Mali r54p1 driver). On clean-2.7 this prop was the only missing condition (SystemUI BlurUtils:
 # isHighEndGfx true, disable_window_blurs 0). The off switch is AOSP's: Settings > Accessibility >
