@@ -15,7 +15,10 @@ android_app {
     system_ext_specific: true,
     privileged: true,
 
-    overrides: ["MusicFX"],
+    overrides: [
+        "AudioFX",
+        "MusicFX",
+    ],
     static_libs: [
         "SettingsLib",
         "SpaLib",
