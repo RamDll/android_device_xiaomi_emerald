@@ -145,6 +145,14 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     debug.lib_gui.mtk_ged_kpi=1
 
+# SurfaceFlinger RenderEngine on Vulkan, as on the old r26-r30.3 and clean-1.2 trees; HWUI already
+# uses Vulkan (stock vendor ro.hwui.use_vulkan=true). Runtime test on clean-2.8 (2026-10-20): with
+# blur the shade janked 3.5-3.8 % instead of 4.2-4.4 % on SkiaGL and SF missed 4-11 frames instead of
+# 24-30; the protected Vulkan context initializes. Nothing sets it on the stock partitions; a debug
+# prop, so `setprop debug.renderengine.backend skiaglthreaded` + stop/start switches back for A/B runs.
+PRODUCT_PRODUCT_PROPERTIES += \
+    debug.renderengine.backend=skiavkthreaded
+
 # Brightness map for the AOSP lights HAL path (stock's is for the HyperOS one); the minimum used to be
 # backlight level 1 = black. Goes with the brightness range in FrameworksResOverlayEmerald.
 PRODUCT_COPY_FILES += \
