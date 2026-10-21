@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The LineageOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- The HAL exposes the ultrawide (camera 2) and macro (camera 3) sensors as separate camera
+         IDs; without this Aperture's lens buttons are missing. -->
+    <bool name="config_enableAuxCameras">true</bool>
+
+    <!-- 60 fps video on the main and front cameras. The HAL only advertises 30 fps; a sensor mode
+         at 60 fps is used with MediaTek HFPS, which our Aperture (clean-2) requests above 30 fps.
+         Tested on clean-2.9 through a /data overlay (2026-10-21): 59.8-60.0 fps at 1080p on both. -->
+    <string-array name="config_additionalVideoConfigurations">
+        <item>0</item> <item>sd|hd|fhd</item> <item>30|60</item>
+        <item>1</item> <item>sd|hd|fhd</item> <item>30|60</item>
+    </string-array>
+</resources>

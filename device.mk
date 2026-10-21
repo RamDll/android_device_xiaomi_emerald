@@ -125,6 +125,11 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_PACKAGES += \
     XiaomiDolby
 
+# Camera: Aperture's lens buttons and 60 fps video (ApertureOverlayEmerald). 60 fps needs our Aperture
+# (clean-2 branch of the RamDll fork), which requests MediaTek HFPS above 30 fps.
+PRODUCT_PACKAGES += \
+    ApertureOverlayEmerald
+
 # MTP: report the phone as a mobile handset (perceived device type 3); with the default 0 Windows
 # shows a generic media player icon. MtpDatabase reads it at the start of every MTP session.
 PRODUCT_PRODUCT_PROPERTIES += \
