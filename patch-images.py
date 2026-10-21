@@ -87,6 +87,12 @@ PATCHES = {
         ("append", "/etc/selinux/vendor_sepolicy.cil",
          "(dontaudit hal_health_default sysfs_bms_device (dir (search)))\n",
          "efc26713aa8cd468bb13ea577dcab1ab2142006284ee9b7bf80325fd9b5d3c78"),
+        # The stock camcorder profiles stop at 1080p, so Aperture offers no 1440p although the
+        # main camera streams 2560x1440 at 30 fps. Ours is the stock file with a QHD profile for
+        # camera 0 (H.264 50 Mbit/s, AAC as the others) that is also its "high" profile.
+        ("file", "/etc/media_profiles_V1_0.xml",
+         "device/xiaomi/emerald/configs/media/media_profiles_V1_0.xml",
+         "27dee16542597be511db8763a7c4d63503fcf97c95dff30c5cee606d910eed52"),
     ]),
     "vendor_dlkm.img": ("vendor_dlkm.patched.img", [
         # LVTS (CPU, GPU and SoC thermal sensors) loses power in s2idle and the stock

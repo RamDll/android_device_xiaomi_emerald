@@ -1,3 +1,3 @@
 # sha256 of the images patch-images.py makes from the stock ones in images.sha256
-c591330a7f2653ea225c7734f6af53ac6d0df27af376f0ac9489922889d7fafa  vendor.patched.img
+3a783f26aa77856b386ed4fb8b4a07805462b7885fe47ccd5775d380905287b2  vendor.patched.img
 420fc852a8f14046be594df95062093c658d78cd956a5a02c62b8393c3ced1bf  vendor_dlkm.patched.img
