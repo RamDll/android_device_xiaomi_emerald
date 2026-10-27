@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: The LineageOS Project
 # SPDX-License-Identifier: Apache-2.0
 #
-# Makes <name>.patched.img from stock images in vendor/xiaomi/emerald-images. Three kinds of
+# Makes <name>.patched.img from stock images in vendor/xiaomi/emerald-images. Four kinds of
 # changes, all made in place in the stock EROFS image so that everything else stays
 # byte-identical (labels, owners, other files):
 #  - bytes: a few bytes in one file. The stock images compress files with LZ4 into
@@ -17,6 +17,10 @@
 #    checksum. The old data blocks are left unused.
 #  - append: text added at the end of one file; the stock content plus the text is then
 #    written as with file.
+#  - add: a new file. Its inode (compact, the SELinux label in an inline xattr) and its data
+#    are appended uncompressed after the last block, and the parent directory is written
+#    again with the new entry the same way (flat plain layout, its old blocks left unused);
+#    the superblock gets the new block and inode counts and checksum.
 # The AVB hashtree footer is then rebuilt with the stock parameters (checked first: rebuilt
 # on the unchanged data it must give back the stock image byte for byte). The partition
 # size grows only if the data no longer fits.
@@ -47,7 +51,9 @@ SB_OFFSET = 1024
 
 # image -> (output, [("bytes", path in the image, file offset, stock bytes, new bytes),
 #                    ("file", path in the image, new content (from ANDROID_ROOT), its sha256) or
-#                    ("append", path in the image, text, sha256 of the stock content + text)])
+#                    ("append", path in the image, text, sha256 of the stock content + text) or
+#                    ("add", path in the image, content (from ANDROID_ROOT), its sha256, mode,
+#                     uid, gid, SELinux label)])
 PATCHES = {
     "vendor.img": ("vendor.patched.img", [
         # The fingerprint HAL runs FodEngineCore::init() twice at start: from the
@@ -339,6 +345,163 @@ def replace_file(image, path, content):
     return [(SB_OFFSET + 4, SB_OFFSET + 8), (SB_OFFSET + 36, SB_OFFSET + 40), (ipos, ipos + 32)]
 
 
+def xattrs(f, nid):
+    """h_name_filter and the (name index, name, value) xattrs of a compact inode."""
+    meta_blkaddr, xattr_blkaddr = struct.unpack_from("<II", read_sb(f), 40)
+    ipos = meta_blkaddr * BLOCK + nid * 32
+    f.seek(ipos)
+    icount = struct.unpack_from("<H", f.read(32), 2)[0]
+    if not icount:
+        return None, []
+    name_filter, shared = struct.unpack("<IB7x", f.read(12))
+    positions = [xattr_blkaddr * BLOCK + i * 4
+                 for i in struct.unpack(f"<{shared}I", f.read(4 * shared))]
+    pos, end = ipos + 32 + 12 + 4 * shared, ipos + 32 + 12 + 4 * (icount - 1)
+    while pos < end:
+        positions.append(pos)
+        f.seek(pos)
+        name_len, _, value_size = struct.unpack("<BBH", f.read(4))
+        pos += (4 + name_len + value_size + 3) & ~3
+    result = []
+    for pos in positions:
+        f.seek(pos)
+        name_len, index, value_size = struct.unpack("<BBH", f.read(4))
+        result.append((index, f.read(name_len), f.read(value_size)))
+    return name_filter, result
+
+
+def dir_data(f, nid):
+    """The content of a directory stored flat (plain, or with its tail inline)."""
+    meta_blkaddr = struct.unpack_from("<I", read_sb(f), 40)[0]
+    ipos = meta_blkaddr * BLOCK + nid * 32
+    f.seek(ipos)
+    i_format, xattr_icount, i_mode, _, size, _, raw_blkaddr = struct.unpack_from("<HHHHIII",
+                                                                                f.read(32))
+    if i_format & 1 or i_mode & 0o170000 != 0o040000:
+        die(f"inode {nid}: not a compact directory inode")
+    layout = (i_format >> 1) & 7
+    if layout == 0:  # EROFS_INODE_FLAT_PLAIN
+        tail = 0
+    elif layout == 2:  # EROFS_INODE_FLAT_INLINE
+        tail = size % BLOCK
+    else:
+        die(f"inode {nid}: unexpected directory layout {layout}")
+    data = b""
+    if size > tail:
+        f.seek(raw_blkaddr * BLOCK)
+        data = f.read(size - tail)
+    if tail:
+        f.seek(ipos + 32 + (12 + 4 * (xattr_icount - 1) if xattr_icount else 0))
+        data += f.read(tail)
+    return data
+
+
+def dir_entries(data):
+    """(name, nid, file type) of each erofs_dirent in directory content."""
+    entries = []
+    for start in range(0, len(data), BLOCK):
+        blk = data[start:start + BLOCK]
+        dirents = [struct.unpack_from("<QHBx", blk, i)
+                   for i in range(0, struct.unpack_from("<H", blk, 8)[0], 12)]
+        for i, (nid, nameoff, file_type) in enumerate(dirents):
+            end = dirents[i + 1][1] if i + 1 < len(dirents) else len(blk)
+            entries.append((blk[nameoff:end].rstrip(b"\0"), nid, file_type))
+    return entries
+
+
+def dir_content(entries):
+    """Directory content as mkfs.erofs writes it: entries sorted by name, a new block when
+    the next one does not fit, each block its erofs_dirent array and then the names."""
+    data, blk = b"", []
+
+    def block(last):
+        dirents, names = b"", b""
+        for name, nid, file_type in blk:
+            dirents += struct.pack("<QHBx", nid, 12 * len(blk) + len(names), file_type)
+            names += name
+        return dirents + names + (b"" if last else bytes(BLOCK - len(dirents) - len(names)))
+
+    for entry in sorted(entries):
+        if sum(12 + len(e[0]) for e in blk) + 12 + len(entry[0]) > BLOCK:
+            data += block(False)
+            blk = []
+        blk.append(entry)
+    return data + block(True)
+
+
+def add_file(image, path, content, mode, uid, gid, label):
+    """Returns the changed byte ranges inside the old data."""
+    parent, name = os.path.split(path)
+    pnid = nid_of(image, parent)
+    with open(image, "r+b") as f:
+        sb = read_sb(f)
+        if sb_checksum(sb) != struct.unpack_from("<I", sb, 4)[0]:
+            die("superblock checksum does not match")
+        inos = struct.unpack_from("<Q", sb, 16)[0]
+        blocks, meta_blkaddr = struct.unpack_from("<II", sb, 36)
+        f.seek(0, os.SEEK_END)
+        if f.tell() != blocks * BLOCK:
+            die(f"image size {f.tell()} is not the filesystem size {blocks * BLOCK}")
+
+        # Reading the directory and writing it again must give back the same bytes.
+        old = dir_data(f, pnid)
+        entries = dir_entries(old)
+        if dir_content(entries) != old:
+            die(f"{parent}: the directory does not come out the same when written again")
+        if name.encode() in (e[0] for e in entries):
+            die(f"{path}: already in the image")
+        # Every stock inode has security.selinux only, so the parent's name filter is ours.
+        name_filter, parent_xattrs = xattrs(f, pnid)
+        if [x[:2] for x in parent_xattrs] != [(6, b"selinux")]:  # EROFS_XATTR_INDEX_SECURITY
+            die(f"{parent}: xattrs other than security.selinux")
+
+        # The inode and its xattrs take a block of their own, the data follows.
+        nid = (blocks - meta_blkaddr) * BLOCK // 32
+        entry = struct.pack("<BBH", 7, 6, len(label)) + b"selinux" + label.encode()
+        xattr = struct.pack("<IB7x", name_filter, 0) + entry + bytes(-len(entry) % 4)
+        inode = struct.pack("<HHHHIIIIHHI", 0,  # compact, EROFS_INODE_FLAT_PLAIN
+                            1 + (len(xattr) - 12) // 4, 0o100000 | mode, 1, len(content), 0,
+                            blocks + 1, inos + 1, uid, gid, 0)
+        f.seek(blocks * BLOCK)
+        f.write(inode + xattr + bytes(BLOCK - len(inode) - len(xattr)))
+        f.write(content + bytes(-len(content) % BLOCK))
+        blocks += 1 + -(-len(content) // BLOCK)
+
+        new = dir_content(entries + [(name.encode(), nid, 1)])  # EROFS_FT_REG_FILE
+        start = blocks
+        f.write(new + bytes(-len(new) % BLOCK))
+        blocks += -(-len(new) // BLOCK)
+        ipos = meta_blkaddr * BLOCK + pnid * 32
+        f.seek(ipos)
+        pinode = bytearray(f.read(32))
+        struct.pack_into("<H", pinode, 0, struct.unpack_from("<H", pinode, 0)[0] & ~(7 << 1))
+        struct.pack_into("<I", pinode, 8, len(new))  # i_size
+        struct.pack_into("<I", pinode, 16, start)  # i_u.raw_blkaddr
+        f.seek(ipos)
+        f.write(pinode)
+
+        sb = read_sb(f)
+        struct.pack_into("<Q", sb, 16, inos + 1)
+        struct.pack_into("<I", sb, 36, blocks)
+        struct.pack_into("<I", sb, 4, sb_checksum(sb))
+        f.seek(SB_OFFSET)
+        f.write(sb)
+    print(f"  {path}: {len(content)} bytes, new inode {nid}, {parent} at block {start}")
+    return [(SB_OFFSET + 4, SB_OFFSET + 8), (SB_OFFSET + 16, SB_OFFSET + 24),
+            (SB_OFFSET + 36, SB_OFFSET + 40), (ipos, ipos + 32)]
+
+
+def check_added(image, path, mode, uid, gid, label):
+    nid = nid_of(image, path)
+    with open(image, "rb") as f:
+        meta_blkaddr = struct.unpack_from("<I", read_sb(f), 40)[0]
+        f.seek(meta_blkaddr * BLOCK + nid * 32)
+        i_mode, i_uid, i_gid = struct.unpack_from("<4xH18xHH", f.read(32))
+        found = (i_mode, i_uid, i_gid, xattrs(f, nid)[1])
+    if found != (0o100000 | mode, uid, gid, [(6, b"selinux", label.encode())]):
+        die(f"{path}: mode, owner or label in the patched image is not the expected one")
+
+
 def check_diff(a, b, size, ranges):
     """Fail unless the first size bytes of a and b differ only inside ranges."""
     with open(a, "rb") as fa, open(b, "rb") as fb:
@@ -384,7 +547,7 @@ def main():
             die(f"{stock}: the rebuilt AVB footer differs from the stock one")
         run("python3", AVBTOOL, "erase_footer", "--image", tmp)
 
-        expected, ranges = {}, []
+        expected, ranges, added = {}, [], []
         for patch in patches:
             if patch[0] == "bytes":
                 _, path, offset, old, new = patch
@@ -402,17 +565,29 @@ def main():
                     die(f"{path}: sha256 of the stock content + text does not match")
                 ranges += replace_file(tmp, path, content)
                 expected[path] = content
-            else:
+            elif patch[0] == "file":
                 _, path, src, digest = patch
                 content = open(os.path.join(ANDROID_ROOT, src), "rb").read()
                 if hashlib.sha256(content).hexdigest() != digest:
                     die(f"{src}: sha256 does not match")
                 ranges += replace_file(tmp, path, content)
                 expected[path] = content
+            elif patch[0] == "add":
+                _, path, src, digest, mode, uid, gid, label = patch
+                content = open(os.path.join(ANDROID_ROOT, src), "rb").read()
+                if hashlib.sha256(content).hexdigest() != digest:
+                    die(f"{src}: sha256 does not match")
+                ranges += add_file(tmp, path, content, mode, uid, gid, label)
+                expected[path] = content
+                added.append((path, mode, uid, gid, label))
+            else:
+                die(f"{patch[1]}: unknown patch kind {patch[0]}")
 
         for path, content in expected.items():
             if cat(tmp, path) != bytes(content):
                 die(f"{path}: content in the patched image is not the expected one")
+        for path, mode, uid, gid, label in added:
+            check_added(tmp, path, mode, uid, gid, label)
         check_diff(stock, tmp, data_size, ranges)
         if subprocess.run(["fsck.erofs", "--extract", tmp], capture_output=True).returncode:
             die(f"{out_name}: fsck.erofs failed")
