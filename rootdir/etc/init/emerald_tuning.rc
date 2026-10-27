@@ -9,3 +9,8 @@ on boot
     # suspend and resume logs a line for each device callback (95 % of the kernel log lines around
     # a suspend). Turn off only that logging. Labeled sysfs_power in sepolicy/private/genfs_contexts.
     write /sys/power/pm_print_times 0
+
+    # zram: swap in one page at a time instead of 8 (the vendor init.mt6789.rc sets 3 on
+    # post-fs-data), as the emulator does for its lz4 zram (device/generic/goldfish
+    # init.ranchu.rc): no read-ahead of pages that may not be needed, each an lz4 decompression.
+    write /proc/sys/vm/page-cluster 0
