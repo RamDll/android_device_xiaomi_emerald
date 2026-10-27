@@ -241,6 +241,16 @@ PRODUCT_PRODUCT_PROPERTIES += \
     bluetooth.profile.mcp.server.enabled=false \
     bluetooth.profile.vcp.controller.enabled=false
 
+# Log only warnings and errors from three stock components that log many lines a second at info
+# and debug level: the display ambient light algorithm (libsensor-displayalgo, every light sample),
+# the sensors multihal's HfLooper ("sensor N = ...") and the MediaTek hwcomposer. Tested on
+# clean-2.10 (2026-10-27) with setprop: logd 2.1 -> 0.6 s CPU per minute, auto-brightness unchanged.
+# For debugging: setprop log.tag.<tag> D.
+PRODUCT_PRODUCT_PROPERTIES += \
+    log.tag.HfLooper=W \
+    log.tag.hwcomposer=W \
+    log.tag.libsensor-displayalgo=W
+
 # No "Serial console" notification on userdebug: stop the console shell init.rc starts on debuggable
 # builds (emerald boots with console=ttynull, the shell is attached to nothing).
 PRODUCT_PACKAGES += \
