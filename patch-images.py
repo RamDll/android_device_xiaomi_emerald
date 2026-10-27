@@ -81,11 +81,16 @@ PATCHES = {
         # Its options for this fuel gauge, read from vendor properties: the charge counter is
         # in mAh; the maximum current and voltage do not depend on the charger, so report
         # standard USB ports as 500 mA at 5 V and chargers by their negotiated power.
+        # Then the switch of the Xiaomi drop recorder in citsensorservice: it keeps the
+        # collide_detect sensor (a wake-up sensor) at 100 Hz all the time to log falls for
+        # after-sales diagnostics in /mnt/vendor/persist/sensors; it is the sensor's only client.
         ("append", "/build.prop",
          "# Health HAL options (device/xiaomi/emerald patch-images.py)\n"
          "ro.vendor.health.charge_counter_in_mah=true\n"
-         "ro.vendor.health.usb_max_is_static=true\n",
-         "1802cc306e6ef01a7be6e827dd9580e513b594dc17d9ae629190a9e563aa4edc"),
+         "ro.vendor.health.usb_max_is_static=true\n"
+         "# Xiaomi drop recorder off: no 100 Hz collide_detect sensor (device/xiaomi/emerald patch-images.py)\n"
+         "persist.vendor.debug.collision.disable=true\n",
+         "b85b371b6c7ad6eb9d648c89c190875a233f5b041a2e2020b270155ea113c67a"),
         # libbatterymonitor reads the type of every power supply on each update, so it searches
         # the fuel gauge node bms too. bms is type Battery and must not count as a second
         # battery: do not audit the denial. init compiles the split policy at every boot (the
