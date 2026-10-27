@@ -76,6 +76,13 @@ BOARD_RAMDISK_USE_LZ4 := true
 # Display (stock ro.sf.lcd_density)
 TARGET_SCREEN_DENSITY := 480
 
+# Health: LineageOS charging control switches the charger input off and on (no bypass). The
+# service ships prebuilt in vendor.img (prebuilts/lineage-health); these are its build flags.
+$(call soong_config_set,lineage_health,charging_control_charging_path,/sys/class/power_supply/battery/input_suspend)
+$(call soong_config_set,lineage_health,charging_control_charging_enabled,0)
+$(call soong_config_set,lineage_health,charging_control_charging_disabled,1)
+$(call soong_config_set_bool,lineage_health,charging_control_supports_bypass,false)
+
 # Init: product identity (brand / model / marketname / fingerprint) by hardware SKU, as the stock
 # vendor picks build_${ro.boot.product.hardware.sku}.prop for its own partition (libinit/)
 $(call soong_config_set,libinit,vendor_init_lib,//$(DEVICE_PATH):init_emerald)

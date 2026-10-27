@@ -90,9 +90,65 @@ PATCHES = {
         # the fuel gauge node bms too. bms is type Battery and must not count as a second
         # battery: do not audit the denial. init compiles the split policy at every boot (the
         # stock precompiled policy does not match our system), so the vendor cil is used.
+        # Then the domain of the LineageOS charging control service added below:
+        # device/lineage/sepolicy/common/vendor/hal_lineage_health_default.te written as the
+        # stock cil writes its HALs (the hal_lineage_health attributes and service type are in
+        # the LineageOS system_ext policy), and the charging switch it turns off and on.
         ("append", "/etc/selinux/vendor_sepolicy.cil",
-         "(dontaudit hal_health_default sysfs_bms_device (dir (search)))\n",
-         "efc26713aa8cd468bb13ea577dcab1ab2142006284ee9b7bf80325fd9b5d3c78"),
+         "(dontaudit hal_health_default sysfs_bms_device (dir (search)))\n"
+         "(type hal_lineage_health_default)\n"
+         "(roletype object_r hal_lineage_health_default)\n"
+         "(type hal_lineage_health_default_exec)\n"
+         "(roletype object_r hal_lineage_health_default_exec)\n"
+         "(typeattributeset domain (hal_lineage_health_default))\n"
+         "(typeattributeset halserverdomain (hal_lineage_health_default))\n"
+         "(typeattributeset hal_lineage_health_server (hal_lineage_health_default))\n"
+         "(typeattributeset hal_lineage_health (hal_lineage_health_default))\n"
+         "(typeattributeset file_type (hal_lineage_health_default_exec))\n"
+         "(typeattributeset exec_type (hal_lineage_health_default_exec))\n"
+         "(typeattributeset vendor_file_type (hal_lineage_health_default_exec))\n"
+         "(allow init_202504 hal_lineage_health_default_exec "
+         "(file (read getattr map execute open)))\n"
+         "(allow init_202504 hal_lineage_health_default (process (transition)))\n"
+         "(allow hal_lineage_health_default hal_lineage_health_default_exec "
+         "(file (read getattr map execute open entrypoint)))\n"
+         "(dontaudit init_202504 hal_lineage_health_default (process (noatsecure)))\n"
+         "(allow init_202504 hal_lineage_health_default (process (siginh rlimitinh)))\n"
+         "(typetransition init_202504 hal_lineage_health_default_exec process "
+         "hal_lineage_health_default)\n"
+         "(allow hal_lineage_health_default servicemanager_202504 (binder (call transfer)))\n"
+         "(allow servicemanager_202504 hal_lineage_health_default (binder (transfer)))\n"
+         "(allow hal_lineage_health_default servicemanager_202504 (fd (use)))\n"
+         "(allow hal_lineage_health_default sysfs_battery_supply (dir (search)))\n"
+         "(allow hal_lineage_health_default sysfs_battery_supply "
+         "(file (ioctl read write getattr lock append map open watch watch_reads)))\n",
+         "6c774b648494cece74391de78886f52bce6ce9cf6704166759603c193da8fcaf"),
+        ("append", "/etc/selinux/vendor_file_contexts",
+         "/(vendor|system/vendor)/bin/hw/vendor\\.lineage\\.health-service\\.default "
+         "u:object_r:hal_lineage_health_default_exec:s0\n",
+         "28621b27374223a028fdec7f7073d8cb45f26664bf31d892ec348c2bd32317e3"),
+        # LineageOS charging control (Settings > Battery > Charging control): the
+        # vendor.lineage.health service of hardware/lineage/interfaces, built for
+        # battery/input_suspend (toggle mode only, BoardConfig.mk); see prebuilts/lineage-health.
+        # The stock vendor has no vendor.lineage.health-V2-ndk, so it is added too.
+        ("add", "/bin/hw/vendor.lineage.health-service.default",
+         "device/xiaomi/emerald/prebuilts/lineage-health/vendor.lineage.health-service.default",
+         "cca12c0ec3eedfa83bd636e2915b2aeb8a76feda5dfeb20da4f1f8a2342c1e6b",
+         0o755, 0, 2000, "u:object_r:hal_lineage_health_default_exec:s0"),
+        ("add", "/lib64/vendor.lineage.health-V2-ndk.so",
+         "device/xiaomi/emerald/prebuilts/lineage-health/vendor.lineage.health-V2-ndk.so",
+         "5bac69723a4956048f80eb9956e257f6f1627353638af187800e1a0dafe9705d",
+         0o644, 0, 0, "u:object_r:vendor_file:s0"),
+        ("add", "/etc/init/vendor.lineage.health-service.default.rc",
+         "hardware/lineage/interfaces/health/aidl/default/"
+         "vendor.lineage.health-service.default.rc",
+         "862824d2fde5916d0f9390e861faf05eaa0984279f61301e3573d04e43b7c2d0",
+         0o644, 0, 0, "u:object_r:vendor_configs_file:s0"),
+        ("add", "/etc/vintf/manifest/vendor.lineage.health-service.default.xml",
+         "hardware/lineage/interfaces/health/aidl/default/"
+         "vendor.lineage.health-service.default.xml",
+         "c2df31bb5485765f557a479c5cbd0bf94ab36cb9757868ee049cea33e3d02020",
+         0o644, 0, 0, "u:object_r:vendor_configs_file:s0"),
         # The stock camcorder profiles stop at 1080p, so Aperture offers no 1440p although the
         # main camera streams 2560x1440 at 30 fps. Ours is the stock file with a QHD profile for
         # camera 0 (H.264 50 Mbit/s, AAC as the others) that is also its "high" profile.
