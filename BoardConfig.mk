@@ -127,6 +127,11 @@ BOARD_MAIN_PARTITION_LIST := \
 BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := erofs
 BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := erofs
 BOARD_SYSTEM_EXTIMAGE_FILE_SYSTEM_TYPE := erofs
+# Uncompressed (the default is lz4hc): reading them costs no decompression on this CPU. The
+# images in super grow from ~4.2 to ~5.0 GB; the main dynamic partition group has 7.5 GB.
+BOARD_PRODUCTIMAGE_EROFS_COMPRESSOR := none
+BOARD_SYSTEMIMAGE_EROFS_COMPRESSOR := none
+BOARD_SYSTEM_EXTIMAGE_EROFS_COMPRESSOR := none
 
 TARGET_COPY_OUT_ODM_DLKM := odm_dlkm
 TARGET_COPY_OUT_PRODUCT := product
