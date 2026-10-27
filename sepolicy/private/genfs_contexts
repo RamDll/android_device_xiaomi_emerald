@@ -1,0 +1,2 @@
+# Unlabeled (sysfs) otherwise; init turns it off at boot (rootdir/etc/init/emerald_tuning.rc)
+genfscon sysfs /power/pm_print_times u:object_r:sysfs_power:s0

@@ -256,6 +256,10 @@ PRODUCT_PRODUCT_PROPERTIES += \
 PRODUCT_PACKAGES += \
     emerald_noconsole.rc
 
+# Kernel settings that save CPU time (rootdir/etc/init/emerald_tuning.rc).
+PRODUCT_PACKAGES += \
+    emerald_tuning.rc
+
 # Platform
 TARGET_BOARD_PLATFORM := mt6789
 

@@ -1,0 +1,11 @@
+#
+# SPDX-FileCopyrightText: The LineageOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# emerald: kernel settings that save CPU time.
+on boot
+    # The stock kernel command line has initcall_debug, which also turns on pm_print_times: every
+    # suspend and resume logs a line for each device callback (95 % of the kernel log lines around
+    # a suspend). Turn off only that logging. Labeled sysfs_power in sepolicy/private/genfs_contexts.
+    write /sys/power/pm_print_times 0
