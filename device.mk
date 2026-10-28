@@ -177,7 +177,8 @@ PRODUCT_PRODUCT_PROPERTIES += \
     ro.surface_flinger.set_touch_timer_ms=1100 \
     ro.surface_flinger.set_display_power_timer_ms=1000
 
-# Max / min refresh rate lists in Settings > Display (SettingsResOverlayEmerald).
+# Max / min refresh rate lists in Settings > Display and the fingerprint enroll ring size
+# (SettingsResOverlayEmerald).
 PRODUCT_PACKAGES += \
     SettingsResOverlayEmerald
 
