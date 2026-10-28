@@ -158,6 +158,16 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_PRODUCT_PROPERTIES += \
     debug.renderengine.backend=skiavkthreaded
 
+# Default display size 432 dpi instead of the panel's 480 (stock vendor ro.sf.lcd_density and
+# TARGET_SCREEN_DENSITY): 432 is the size the user picks in Settings > Display size, and Settings
+# plays the fingerprint enroll animation hint only at the default display size. Product props are
+# loaded after vendor's, so this one overrides the vendor value for SurfaceFlinger and DisplayMetrics.
+# Recovery gets it too through its prop.default (cosmetic: slightly smaller gaps on the install
+# screen). Checked on clean-2.12 (2026-10-28): with Settings > Display size set to the default the
+# hint shows, at 432 it does not.
+PRODUCT_PRODUCT_PROPERTIES += \
+    ro.sf.lcd_density=432
+
 # Brightness map for the AOSP lights HAL path (stock's is for the HyperOS one); the minimum used to be
 # backlight level 1 = black. Goes with the brightness range in FrameworksResOverlayEmerald.
 PRODUCT_COPY_FILES += \
