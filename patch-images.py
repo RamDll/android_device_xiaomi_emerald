@@ -80,7 +80,8 @@ PATCHES = {
          "35"),  # "5"
         # Its options for this fuel gauge, read from vendor properties: the charge counter is
         # in mAh; the maximum current and voltage do not depend on the charger, so report
-        # standard USB ports as 500 mA at 5 V and chargers by their negotiated power.
+        # standard USB ports as 500 mA at 5 V and chargers by their negotiated power; the state
+        # of health is in the fuel gauge node bms/soh.
         # Then the switch of the Xiaomi drop recorder in citsensorservice: it keeps the
         # collide_detect sensor (a wake-up sensor) at 100 Hz all the time to log falls for
         # after-sales diagnostics in /mnt/vendor/persist/sensors; it is the sensor's only client.
@@ -88,19 +89,31 @@ PATCHES = {
          "# Health HAL options (device/xiaomi/emerald patch-images.py)\n"
          "ro.vendor.health.charge_counter_in_mah=true\n"
          "ro.vendor.health.usb_max_is_static=true\n"
+         "ro.vendor.health.state_of_health_path=/sys/class/power_supply/bms/soh\n"
          "# Xiaomi drop recorder off: no 100 Hz collide_detect sensor (device/xiaomi/emerald patch-images.py)\n"
          "persist.vendor.debug.collision.disable=true\n",
-         "b85b371b6c7ad6eb9d648c89c190875a233f5b041a2e2020b270155ea113c67a"),
-        # libbatterymonitor reads the type of every power supply on each update, so it searches
-        # the fuel gauge node bms too. bms is type Battery and must not count as a second
-        # battery: do not audit the denial. init compiles the split policy at every boot (the
-        # stock precompiled policy does not match our system), so the vendor cil is used.
+         "91fb512cd6269c29d732bfd61debdc19f33e23ff798fee8f47e2a8798710077a"),
+        # The health HAL reads the state of health of the fuel gauge from bms/soh (the path is
+        # set in build.prop above), so it may search the bms directory and read that one file,
+        # labeled on its own. bms is type Battery and must not count as a second battery: its
+        # other files, type among them, stay unreadable, and libbatterymonitor reads the type of
+        # every power supply on each update, so do not audit that denial. init compiles the
+        # split policy at every boot (the stock precompiled policy does not match our system),
+        # so the vendor cil is used.
         # Then the domain of the LineageOS charging control service added below:
         # device/lineage/sepolicy/common/vendor/hal_lineage_health_default.te written as the
         # stock cil writes its HALs (the hal_lineage_health attributes and service type are in
         # the LineageOS system_ext policy), and the charging switch it turns off and on.
         ("append", "/etc/selinux/vendor_sepolicy.cil",
-         "(dontaudit hal_health_default sysfs_bms_device (dir (search)))\n"
+         "(allow hal_health_default sysfs_bms_device (dir (search)))\n"
+         "(dontaudit hal_health_default sysfs_bms_device (file (read open getattr)))\n"
+         "(type sysfs_bms_soh)\n"
+         "(roletype object_r sysfs_bms_soh)\n"
+         "(typeattributeset fs_type (sysfs_bms_soh))\n"
+         "(typeattributeset sysfs_type (sysfs_bms_soh))\n"
+         "(genfscon sysfs \"/devices/platform/soc/11f00000.i2c/i2c-7/7-0055/power_supply/bms/soh\" "
+         "(u object_r sysfs_bms_soh ((s0) (s0))))\n"
+         "(allow hal_health_default sysfs_bms_soh (file (read getattr open)))\n"
          "(type hal_lineage_health_default)\n"
          "(roletype object_r hal_lineage_health_default)\n"
          "(type hal_lineage_health_default_exec)\n"
@@ -127,7 +140,7 @@ PATCHES = {
          "(allow hal_lineage_health_default sysfs_battery_supply (dir (search)))\n"
          "(allow hal_lineage_health_default sysfs_battery_supply "
          "(file (ioctl read write getattr lock append map open watch watch_reads)))\n",
-         "6c774b648494cece74391de78886f52bce6ce9cf6704166759603c193da8fcaf"),
+         "49c37c1ea3bf00bbc0cc51ea7d7c072ece0d8636af4b40259159e2335eb03de4"),
         ("append", "/etc/selinux/vendor_file_contexts",
          "/(vendor|system/vendor)/bin/hw/vendor\\.lineage\\.health-service\\.default "
          "u:object_r:hal_lineage_health_default_exec:s0\n",
