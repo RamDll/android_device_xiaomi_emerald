@@ -1,0 +1,27 @@
+//
+// SPDX-FileCopyrightText: The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+// LiveDisplay over the color matrix of the MediaTek PQ HAL (see service.cpp). The vendor image is
+// the stock one, so patch-images.py adds the prebuilt of prebuilts/livedisplay; this module is how
+// that binary is built.
+cc_binary {
+    name: "vendor.lineage.livedisplay-service.emerald",
+    vendor: true,
+    relative_install_path: "hw",
+    init_rc: ["vendor.lineage.livedisplay-service.emerald.rc"],
+    vintf_fragments: ["vendor.lineage.livedisplay-service.emerald.xml"],
+    srcs: ["service.cpp"],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+    ],
+    static_libs: ["vendor.lineage.livedisplay-V1-ndk"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}

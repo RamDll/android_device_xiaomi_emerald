@@ -104,6 +104,10 @@ PATCHES = {
         # device/lineage/sepolicy/common/vendor/hal_lineage_health_default.te written as the
         # stock cil writes its HALs (the hal_lineage_health attributes and service type are in
         # the LineageOS system_ext policy), and the charging switch it turns off and on.
+        # Then the domain of our LiveDisplay service added below (livedisplay/): a server of
+        # hal_lineage_livedisplay (attributes, service type and clients are in the LineageOS
+        # system_ext policy), a client of the MediaTek PQ HAL, and the property that keeps the
+        # display mode.
         ("append", "/etc/selinux/vendor_sepolicy.cil",
          "(allow hal_health_default sysfs_bms_device (dir (search)))\n"
          "(dontaudit hal_health_default sysfs_bms_device (file (read open getattr)))\n"
@@ -139,12 +143,52 @@ PATCHES = {
          "(allow hal_lineage_health_default servicemanager_202504 (fd (use)))\n"
          "(allow hal_lineage_health_default sysfs_battery_supply (dir (search)))\n"
          "(allow hal_lineage_health_default sysfs_battery_supply "
-         "(file (ioctl read write getattr lock append map open watch watch_reads)))\n",
-         "49c37c1ea3bf00bbc0cc51ea7d7c072ece0d8636af4b40259159e2335eb03de4"),
+         "(file (ioctl read write getattr lock append map open watch watch_reads)))\n"
+         "(type hal_lineage_livedisplay_emerald)\n"
+         "(roletype object_r hal_lineage_livedisplay_emerald)\n"
+         "(type hal_lineage_livedisplay_emerald_exec)\n"
+         "(roletype object_r hal_lineage_livedisplay_emerald_exec)\n"
+         "(typeattributeset domain (hal_lineage_livedisplay_emerald))\n"
+         "(typeattributeset halserverdomain (hal_lineage_livedisplay_emerald))\n"
+         "(typeattributeset hal_lineage_livedisplay_server (hal_lineage_livedisplay_emerald))\n"
+         "(typeattributeset hal_lineage_livedisplay (hal_lineage_livedisplay_emerald))\n"
+         "(typeattributeset file_type (hal_lineage_livedisplay_emerald_exec))\n"
+         "(typeattributeset exec_type (hal_lineage_livedisplay_emerald_exec))\n"
+         "(typeattributeset vendor_file_type (hal_lineage_livedisplay_emerald_exec))\n"
+         "(allow init_202504 hal_lineage_livedisplay_emerald_exec "
+         "(file (read getattr map execute open)))\n"
+         "(allow init_202504 hal_lineage_livedisplay_emerald (process (transition)))\n"
+         "(allow hal_lineage_livedisplay_emerald hal_lineage_livedisplay_emerald_exec "
+         "(file (read getattr map execute open entrypoint)))\n"
+         "(dontaudit init_202504 hal_lineage_livedisplay_emerald (process (noatsecure)))\n"
+         "(allow init_202504 hal_lineage_livedisplay_emerald (process (siginh rlimitinh)))\n"
+         "(typetransition init_202504 hal_lineage_livedisplay_emerald_exec process "
+         "hal_lineage_livedisplay_emerald)\n"
+         "(allow hal_lineage_livedisplay_emerald servicemanager_202504 (binder (call transfer)))\n"
+         "(allow servicemanager_202504 hal_lineage_livedisplay_emerald (binder (call transfer)))\n"
+         "(allow hal_lineage_livedisplay_emerald servicemanager_202504 (fd (use)))\n"
+         "(typeattributeset hal_mtk_pq_client (hal_lineage_livedisplay_emerald))\n"
+         "(type vendor_livedisplay_prop)\n"
+         "(roletype object_r vendor_livedisplay_prop)\n"
+         "(typeattributeset property_type (vendor_livedisplay_prop))\n"
+         "(typeattributeset vendor_property_type (vendor_livedisplay_prop))\n"
+         "(typeattributeset vendor_internal_property_type (vendor_livedisplay_prop))\n"
+         "(allow hal_lineage_livedisplay_emerald property_socket_202504 (sock_file (write)))\n"
+         "(allow hal_lineage_livedisplay_emerald init_202504 (unix_stream_socket (connectto)))\n"
+         "(allow hal_lineage_livedisplay_emerald vendor_livedisplay_prop "
+         "(property_service (set)))\n"
+         "(allow hal_lineage_livedisplay_emerald vendor_livedisplay_prop "
+         "(file (read getattr map open)))\n",
+         "9ccd99090754dd80d770625cb942d7a33060497dd9ef00748933172f146cd006"),
         ("append", "/etc/selinux/vendor_file_contexts",
          "/(vendor|system/vendor)/bin/hw/vendor\\.lineage\\.health-service\\.default "
-         "u:object_r:hal_lineage_health_default_exec:s0\n",
-         "28621b27374223a028fdec7f7073d8cb45f26664bf31d892ec348c2bd32317e3"),
+         "u:object_r:hal_lineage_health_default_exec:s0\n"
+         "/(vendor|system/vendor)/bin/hw/vendor\\.lineage\\.livedisplay-service\\.emerald "
+         "u:object_r:hal_lineage_livedisplay_emerald_exec:s0\n",
+         "15bbf1a2edb6202d51e89ada1affd15197dbe85b291545f3044751f4ebc4978f"),
+        ("append", "/etc/selinux/vendor_property_contexts",
+         "persist.vendor.livedisplay.mode u:object_r:vendor_livedisplay_prop:s0 exact int\n",
+         "47259812761cb1d0cd6c0a49e00b19e16cd85f9375f60452a337e0ba44795761"),
         # LineageOS charging control (Settings > Battery > Charging control): the
         # vendor.lineage.health service of hardware/lineage/interfaces, built for
         # battery/input_suspend (toggle mode only, BoardConfig.mk); see prebuilts/lineage-health.
@@ -166,6 +210,21 @@ PATCHES = {
          "hardware/lineage/interfaces/health/aidl/default/"
          "vendor.lineage.health-service.default.xml",
          "c2df31bb5485765f557a479c5cbd0bf94ab36cb9757868ee049cea33e3d02020",
+         0o644, 0, 0, "u:object_r:vendor_configs_file:s0"),
+        # LiveDisplay (color profiles, picture adjustment, color calibration, reading mode) in the
+        # display's CCORR and COLOR blocks instead of a GPU color matrix; see livedisplay/service.cpp
+        # and prebuilts/livedisplay.
+        ("add", "/bin/hw/vendor.lineage.livedisplay-service.emerald",
+         "device/xiaomi/emerald/prebuilts/livedisplay/vendor.lineage.livedisplay-service.emerald",
+         "57f3b4788c16c29959e7ff866e944b157e247d7447a1a7873a83407c58aa594f",
+         0o755, 0, 2000, "u:object_r:hal_lineage_livedisplay_emerald_exec:s0"),
+        ("add", "/etc/init/vendor.lineage.livedisplay-service.emerald.rc",
+         "device/xiaomi/emerald/livedisplay/vendor.lineage.livedisplay-service.emerald.rc",
+         "0c0b122d7af24e9b16b72b98e4db4aa40f8566e4308e33b2b7de79fd7ec4c850",
+         0o644, 0, 0, "u:object_r:vendor_configs_file:s0"),
+        ("add", "/etc/vintf/manifest/vendor.lineage.livedisplay-service.emerald.xml",
+         "device/xiaomi/emerald/livedisplay/vendor.lineage.livedisplay-service.emerald.xml",
+         "9d70bb8ca832d933e1a618ae98250bfc50ab452f2025418fa4389893f7f3d8d6",
          0o644, 0, 0, "u:object_r:vendor_configs_file:s0"),
         # The stock camcorder profiles stop at 1080p, so Aperture offers no 1440p although the
         # main camera streams 2560x1440 at 30 fps. Ours is the stock file with a QHD profile for
