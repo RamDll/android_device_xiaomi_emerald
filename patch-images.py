@@ -175,6 +175,13 @@ PATCHES = {
         ("file", "/etc/media_profiles_V1_0.xml",
          "device/xiaomi/emerald/configs/media/media_profiles_V1_0.xml",
          "44ca63c22738b7e02ac611c4736e57223f5f362228e61e4f07b21a873e1959e6"),
+        # vold reads the storage lifetime (Settings > Device diagnostics > Storage) from the
+        # health descriptor of the storage host named by the sysfs_path option, which the stock
+        # fstab does not set: ours is the stock one with the UFS host on /data. The vendor
+        # ramdisk (first stage mount, recovery) gets the same file.
+        ("file", "/etc/fstab.mt6789",
+         "device/xiaomi/emerald/rootdir/etc/fstab.mt6789",
+         "d03505648738dc06bf936c065ff7d731696ba819e02881d939de850050232300"),
     ]),
     "vendor_dlkm.img": ("vendor_dlkm.patched.img", [
         # LVTS (CPU, GPU and SoC thermal sensors) loses power in s2idle and the stock

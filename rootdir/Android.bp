@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-// Stock fstab (vendor_boot first_stage_ramdisk/fstab.mt6789 == vendor/etc/fstab.mt6789 of 305).
-// Installed to the vendor ramdisk only: vendor.img is the stock image and has its own copy.
+// The stock fstab of 305 (vendor_boot first_stage_ramdisk/fstab.mt6789 == vendor/etc/fstab.mt6789)
+// with sysfs_path on /data. Installed to the vendor ramdisk only: vendor.img is the stock image and
+// patch-images.py puts the same file over its copy.
 prebuilt_etc {
     name: "fstab.mt6789",
     src: "etc/fstab.mt6789",
