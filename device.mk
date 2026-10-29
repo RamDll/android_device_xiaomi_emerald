@@ -275,7 +275,7 @@ PRODUCT_PRODUCT_PROPERTIES += \
 PRODUCT_PACKAGES += \
     emerald_noconsole.rc
 
-# Kernel settings that save CPU time, FPSGO switch mapping (rootdir/etc/init/emerald_tuning.rc).
+# Kernel settings that save CPU time (rootdir/etc/init/emerald_tuning.rc).
 PRODUCT_PACKAGES += \
     emerald_tuning.rc
 

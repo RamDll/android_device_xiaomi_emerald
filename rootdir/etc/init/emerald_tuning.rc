@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# emerald: kernel settings that save CPU time, and the switch of MediaTek FPSGO frame reporting.
+# emerald: kernel settings that save CPU time.
 on boot
     # The stock kernel command line has initcall_debug, which also turns on pm_print_times: every
     # suspend and resume logs a line for each device callback (95 % of the kernel log lines around
@@ -14,14 +14,3 @@ on boot
     # post-fs-data), as the emulator does for its lz4 zram (device/generic/goldfish
     # init.ranchu.rc): no read-ahead of pages that may not be needed, each an lz4 decompression.
     write /proc/sys/vm/page-cluster 0
-
-# emerald: the developer options switch "MediaTek frame boost (FPSGO)" (Settings,
-# persist.sys.emerald.fpsgo) turns on libgui's FPSGO frame reporting (frameworks/native MtkFpsgo,
-# debug.lib_gui.mtk_fpsgo), which each process reads once, at its first Surface. At boot this
-# trigger runs right after the boot actions, while zygote is still preloading, so system_server and
-# the apps see it; a later change applies to processes started after it.
-on property:persist.sys.emerald.fpsgo=1
-    setprop debug.lib_gui.mtk_fpsgo 1
-
-on property:persist.sys.emerald.fpsgo=0
-    setprop debug.lib_gui.mtk_fpsgo 0
