@@ -187,6 +187,17 @@ PRODUCT_PRODUCT_PROPERTIES += \
     ro.surface_flinger.set_touch_timer_ms=1100 \
     ro.surface_flinger.set_display_power_timer_ms=1000
 
+# Honour the apps' frame rate category votes on this multi-refresh-rate (non-VRR) panel. Without it
+# SurfaceFlinger drops them (LayerInfo::isVoteValidForMrr), falls back to the heuristic, and screens that
+# update about once a second (Settings > About phone, YouTube portrait) stay at the max rate. The
+# FlagManager sysprop override of the frame_rate_category_mrr aconfig flag, read once at SurfaceFlinger
+# start. Tested on clean-2.15 through setprop + stop/start (2026-10-30): idle 60 Hz in Settings, YouTube
+# feed and portrait video; 90 Hz on scroll, YouTube feed scroll and the shade; jank_trans / jank_run about
+# the same as without it. About phone is 60 Hz too, but flips 60 <-> 90 Hz about once a second while the
+# up-time row is on screen: it rebinds every second and AOSP boosts a view that moved (HIGH_HINT).
+PRODUCT_PRODUCT_PROPERTIES += \
+    debug.sf.frame_rate_category_mrr=1
+
 # Max / min refresh rate lists in Settings > Display and the fingerprint enroll ring size
 # (SettingsResOverlayEmerald).
 PRODUCT_PACKAGES += \
