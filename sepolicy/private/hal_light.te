@@ -1,0 +1,2 @@
+# Stock light HAL: reads ro.miui.ui.version.code on every backlight set (12-bit level when set)
+get_prop(hal_light_server, emerald_backlight_prop)

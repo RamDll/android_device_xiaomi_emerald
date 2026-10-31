@@ -4,3 +4,6 @@ ro.audio.simulate_device_connections    u:object_r:system_audio_config_prop:s0 e
 
 # Double tap to wake (touch/emerald_dt2w.rc)
 sys.emerald.dt2w                        u:object_r:emerald_dt2w_prop:s0 exact bool
+
+# Stock light HAL 12-bit backlight path (property.te)
+ro.miui.ui.version.code                 u:object_r:emerald_backlight_prop:s0 exact int

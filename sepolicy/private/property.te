@@ -1,2 +1,7 @@
 # Double tap to wake on/off, set by EmeraldUdfps, read by init (touch/emerald_dt2w.rc)
 system_internal_prop(emerald_dt2w_prop)
+
+# Stock light HAL (lights-service.mediatek): 12-bit backlight level while ro.miui.ui.version.code is
+# set; frameworks/base clean-2 LightsService sends that level then. Readable only by the light HAL and
+# system_server: apps check ro.miui.* props to detect MIUI.
+system_restricted_prop(emerald_backlight_prop)

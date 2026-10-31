@@ -143,6 +143,14 @@ PRODUCT_PRODUCT_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.lib_gui.frame_event_history_size=10
 
+# Backlight: the stock light HAL takes a 12-bit level (color & 0xfff) only while this prop is set,
+# otherwise it maps an 8-bit luma to 1..2047 in steps of ~8, and the slider jumps at the bottom
+# (tester 2.16: the first 20 % = levels 9/17/25/33). frameworks/base clean-2 LightsService sends the
+# 12-bit level when it is set, on the same scale (min 9, max 2047). Readable only by the light HAL and
+# system_server (sepolicy/private/property.te).
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.miui.ui.version.code=1
+
 # Frame timestamps to MediaTek GED (frameworks/native clean-2 "libgui: Report frame timestamps to
 # MediaTek GED KPI"; the stock HyperOS libgui always reports them): without them the GPU stays at
 # 470-500 MHz in activity transitions, Settings 16 % janky frames -> 6 % with (jank_trans.sh, clean-2.2,
