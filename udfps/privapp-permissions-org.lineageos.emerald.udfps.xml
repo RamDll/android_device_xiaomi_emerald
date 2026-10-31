@@ -6,6 +6,7 @@
 <permissions>
     <privapp-permissions package="org.lineageos.emerald.udfps">
         <permission name="android.permission.MANAGE_USERS" />
+        <permission name="android.permission.MODIFY_AUDIO_ROUTING" />
         <permission name="android.permission.USE_BIOMETRIC_INTERNAL" />
     </privapp-permissions>
 </permissions>

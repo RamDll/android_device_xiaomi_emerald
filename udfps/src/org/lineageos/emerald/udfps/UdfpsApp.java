@@ -58,6 +58,12 @@ public class UdfpsApp extends Application {
         thread.start();
         mHandler = new Handler(thread.getLooper());
         mHandler.post(() -> {
+            // First, as setup() below waits for the fingerprint and touch HALs.
+            try {
+                new UltrasoundReceiverMode(this, mHandler).start();
+            } catch (RuntimeException e) {
+                Log.e(TAG, "ultrasound receiver mode disabled", e);
+            }
             // A persistent app that crashes on start is restarted at once, and the crash loop ends in
             // a RescueParty reboot (clean-1.2 bootloop, 2026-10-15). Without this bridge only the
             // fingerprint stops working, so log and stay idle instead.
